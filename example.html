@@ -1,0 +1,18 @@
+<!DOCTYPE>
+<html>
+<head>
+</head>
+<body>
+	<form>
+		<input id="omise_card_name" placeholder="Full name" type="text" name="name">
+		<input id="omise_card_number" name="omise_card_number" placeholder="Card number">
+		<input id="omise_card_expiration" placeholder="MM/YY" type="text" name="omise_card_expiration">
+		<input id="omise_card_security" placeholder="CVC" type="text" name="omise_card_security">
+	</form>
+
+	<script src="./lib/js/validator.js"></script>
+	<script>
+		var omise = new OmiseValidator;
+	</script>
+</body>
+</html>
