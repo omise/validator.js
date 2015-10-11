@@ -3,22 +3,20 @@ class OmiseCcSecureValidation
     @charMax = 4
 
   ###
-  # Initiate card secure field
+  #
   ###
-  init: (elem) ->
-    # Attach an event
-    elem.onkeypress = (e) =>
-      e = e || window.event
-
+  defaultRule: (e) =>
+    switch e.which
       # Allow: backspace, delete, tab, escape, home, end and left-right arrow
-      return true if e.which in [null, 0, 8, 9, 27]
+      when null, 0, 8, 9, 27 then return
 
-      inp = String.fromCharCode e.which
+      else
+        _inp = String.fromCharCode e.which
       
-      # Allow: only digit character [0 - 9]
-      return false if !/^\d+$/.test inp
+        # Allow: only digit character [0 - 9]
+        return false if !/^\d+$/.test _inp
 
-      return false if e.target.value.length >= @charMax
+        return false if e.target.value.length >= @charMax
 
 # Export class
 window.OmiseValidation.ccsecure = OmiseCcSecureValidation

@@ -3,16 +3,39 @@
 <head>
 </head>
 <body>
-	<form>
-		<input id="omise_card_name" placeholder="Full name" type="text" name="name">
-		<input id="omise_card_number" name="omise_card_number" placeholder="Card number">
-		<input id="omise_card_expiration" placeholder="MM/YY" type="text" name="omise_card_expiration">
-		<input id="omise_card_security" placeholder="CVC" type="text" name="omise_card_security">
-	</form>
+    <h1>Validation form #1</h1>
+    <form>
+        <input placeholder="Full name"      type="text" name="omise_card_name"           id="omise_card_name">
+        <input placeholder="Card number"    type="text" name="omise_card_number"         id="omise_card_number">
+        <input placeholder="MM / YYYY"      type="text" name="omise_card_expiration"     id="omise_card_expiration">
+        <input placeholder="CVC"            type="text" name="omise_card_security"       id="omise_card_security">
+    </form>
 
-	<script src="./lib/js/validator.js"></script>
-	<script>
-		var omise = new OmiseValidator;
-	</script>
+    <h1>Validation form #2</h1>
+    <form>
+        <input placeholder="Full name"     type="text" name="my_card_name"              class="my_card_name">
+        <input placeholder="Card number"   type="text" name="my_card_number"            class="my_card_number">
+        <input placeholder="MM"            type="text" name="my_card_expiration_month"  class="my_card_expiration_month">
+        <input placeholder="YYYY"          type="text" name="my_card_expiration_year"   class="my_card_expiration_year">
+        <input placeholder="CVC"           type="text" name="my_card_security"          class="my_card_security">
+    </form>
+
+    <script src="./lib/js/validator.js"></script>
+    <script>
+        var omise = new OmiseValidator;
+
+        omise.validates('omise_card_name', "ccName");
+        omise.validates('omise_card_number', "ccNumber");
+        omise.validates('omise_card_expiration', "ccExpiry");
+        omise.validates('omise_card_security', "ccSecure");
+
+        omise.validates('.my_card_name', "ccName");
+        omise.validates('.my_card_number', "ccNumber");
+        omise.validates('.my_card_expiration_month', "ccExpiryMonth");
+        omise.validates('.my_card_expiration_year', "ccExpiryYear");
+        omise.validates('.my_card_security', "ccSecure");
+
+        omise.attach();
+    </script>
 </body>
 </html>
