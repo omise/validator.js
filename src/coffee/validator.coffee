@@ -34,8 +34,8 @@ class OmiseValidator
 
   ###
   # Add validation rules into a target element
-  # @param {string} field - name of an element that you want to validate
-  # @param {array} validates - name of an element that you want to validate
+  # @param {string} field     - name of an element that you want to validate
+  # @param {array} validates  - name of an element that you want to validate
   # @return {void}
   ###
   validates: (field, rules) ->
@@ -58,16 +58,14 @@ class OmiseValidator
         _elem = @_initSelectors(field)
         return false unless _elem?
 
-        _rule = @validationRules.getRule field.validates[0]
-        return false unless _rule isnt false
+        _validation = @validationRules.getRule field.validates[0]
+        return false unless _validation isnt false
 
-        _elem.onkeypress = (e) ->
-          e = e || window.event
-          _rule e
-
+        _validation.init _elem unless !_validation.init?
+        
         return {
           target    : field.target
-          validates : _rule
+          validates : _validation
           selector  : _elem
         }
       

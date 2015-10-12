@@ -1,6 +1,6 @@
-class OmiseCcSecureValidation
+class OmiseCcExpiryYearValidation
   constructor: ->
-    @charMax = 4
+    @charMax    = 4
 
   ###
   # Initiate validation rule
@@ -13,7 +13,7 @@ class OmiseCcSecureValidation
   ###
   #
   ###
-  validate: (e) =>
+  validate: (e) ->
     switch e.which
       # Allow: backspace, delete, tab, escape, home, end and left-right arrow
       when null, 0, 8, 9, 27 then return
@@ -26,5 +26,6 @@ class OmiseCcSecureValidation
 
         return false if e.target.value.length >= @charMax
 
+
 # Export class
-window.OmiseValidation.ccsecure = OmiseCcSecureValidation
+window.OmiseValidation.ccexpiryyear = OmiseCcExpiryYearValidation

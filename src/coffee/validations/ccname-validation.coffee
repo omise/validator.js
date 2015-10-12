@@ -1,8 +1,16 @@
 class OmiseCcNameValidation
   ###
+  # Initiate validation rule
+  ###
+  init: (elem) ->
+    elem.onkeypress = (e) =>
+      e = e || window.event
+      @validate e
+
+  ###
   #
   ###
-  defaultRule: (e) ->
+  validate: (e) ->
     switch e.which
       # Allow: backspace, delete, tab, escape, home, end,
       # left-right arrow and space-bar
