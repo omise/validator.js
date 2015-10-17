@@ -12,7 +12,19 @@ Validate Fields
   var validator = new OmiseValidator;
   
   validator.validates('field_id', 'rule_name');
-  validator.attach();
+  validator.attachForm('form_id');
+</script>
+```
+
+Verbose method
+---------------
+```javascript
+<script src="https://cdn.omise.co/validator.js"></script>
+<script>
+  var validator = new OmiseValidator;
+  
+  validator.validateCcName('field_id', 'rule_name');
+  validator.attachForm('form_id');
 </script>
 ```
 
@@ -35,5 +47,5 @@ The list below is all available validation rules that be accepted.
 - `ccExpiryYear`  
   Allowed only digit (0-9) characters. (4 character limit)
 
-- `ccSecure`  
+- `ccSecurityCode`  
   Allowed only digit (0-9) characters. (4 character limit)
