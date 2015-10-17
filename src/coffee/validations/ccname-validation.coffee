@@ -47,7 +47,7 @@ class OmiseCcNameValidation
       when null, 0, 8, 9, 27, 32 then return true
 
       else
-        return @validate value
+        return @validate value, e.target.value
 
 # Export class
 window.OmiseValidation.ccname = OmiseCcNameValidation
