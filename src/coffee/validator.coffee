@@ -1,11 +1,19 @@
 class OmiseValidator
   constructor: ->
-    @validation = new window.OmiseValidation.validation
+    @response = new window.OmiseValidation.response
+
+    @rules =
+      ccName          : new window.OmiseValidation.ccname
+      ccNumber        : new window.OmiseValidation.ccnumber
+      ccExpiry        : new window.OmiseValidation.ccexpiry
+      ccExpiryMonth   : new window.OmiseValidation.ccexpirymonth
+      ccExpiryYear    : new window.OmiseValidation.ccexpiryyear
+      ccSecurityCode  : new window.OmiseValidation.ccsecuritycode
 
     # Initiate variables
     @form =
-      form: null
-      fields: []
+      form            : null
+      fields          : []
 
   ###
   # Set a validation to an element
@@ -97,12 +105,12 @@ class OmiseValidator
           return false unless field.selector?
 
           # Retrieve a validation class
-          field.validates = @validation.getRule field.validates[0]
+          field.validates = @rules[field.validates[0]] or false
           return false unless field.validates isnt false
 
           @_createWrapperElem field.selector, field.target
 
-          @validation.observeField field, field.selector, field.validates
+          @_observeField field, field.selector, field.validates
 
         if result is false
           @form.fields.splice i, 1
@@ -110,7 +118,7 @@ class OmiseValidator
           @form.fields[i] = field
 
       # Listen submit event
-      @validation.observeForm @form
+      @_observeForm @form
       return
 
   ###
@@ -145,7 +153,7 @@ class OmiseValidator
     elem.parentNode.replaceChild wrapper, elem
     wrapper.appendChild elem
 
-    elem.dataset.wrapper      = "#{prefix}#{cnt}_wrapper"
+    elem.dataset.wrapper = "#{prefix}#{cnt}_wrapper"
 
   ###
   # Initiate the default style sheet element
@@ -159,6 +167,40 @@ class OmiseValidator
     l = document.documentElement
     l = l.lastChild while l.childNodes.length and l.lastChild.nodeType is 1
     l.parentNode.appendChild e
+
+  ###
+  # Set an observation to listen form event
+  # @param {object} form - the form object (retrieve from @form variable)
+  # @return {void}
+  ###
+  _observeForm: (form) ->
+    form.form.addEventListener 'submit', (e) =>
+      e.preventDefault()
+
+      for field, i in form.fields
+        validate = field.validates.validate field.selector.value
+
+        if validate isnt true
+          if typeof field.callback is 'function'
+            field.callback()
+          else
+            @response.invalid field.selector, validate
+        else
+          @response.valid field.selector
+    , false
+
+  ###
+  # Set an observation to listen field event
+  # @param {object} field - the field object (retrieve from @form variable)
+  # @param {object} selector - the field's HTML DOM object
+  # @param {object} validation - the validation class object
+  # @return {void}
+  ###
+  _observeField: (field, selector, validation) ->
+    @response.createElementForPushMsg selector
+
+    # @invalidHandler
+    validation.init selector, field, @response
 
 # Export class
 window.OmiseValidation  = {}
