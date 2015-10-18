@@ -108,9 +108,9 @@ class OmiseValidator
           field.validates = @rules[field.validates[0]] or false
           return false unless field.validates isnt false
 
-          @_createWrapperElem field.selector, field.target
+          @_initValidateField field.selector, field.target
 
-          @_observeField field, field.selector, field.validates
+          @_observeField field, field.validates
 
         if result is false
           @form.fields.splice i, 1
@@ -133,12 +133,12 @@ class OmiseValidator
       else document.getElementById(target)
 
   ###
-  # Manipulate a selector from element's id or class attribute
+  # Transform a normal field to be a validated field
   # @param {object} elem - an element that is a target
   # @param {string} prefix - The name that will be a prefix of an element's id
   # @return {void}
   ###
-  _createWrapperElem: (elem, prefix) ->
+  _initValidateField: (elem, prefix) ->
     if /^[.#]/.test prefix
       prefix = prefix.substring(1)
 
@@ -153,7 +153,8 @@ class OmiseValidator
     elem.parentNode.replaceChild wrapper, elem
     wrapper.appendChild elem
 
-    elem.dataset.wrapper = "#{prefix}#{cnt}_wrapper"
+    elem.dataset.wrapper  = "#{prefix}#{cnt}_wrapper"
+    elem.dataset.dirty    = false
 
   ###
   # Initiate the default style sheet element
@@ -178,7 +179,8 @@ class OmiseValidator
       e.preventDefault()
 
       for field, i in form.fields
-        validate = field.validates.validate field.selector.value
+        field.selector.dataset.dirty = true
+        validate = field.validates.submitValidate field.selector.value
 
         if validate isnt true
           if typeof field.callback is 'function'
@@ -192,15 +194,14 @@ class OmiseValidator
   ###
   # Set an observation to listen field event
   # @param {object} field - the field object (retrieve from @form variable)
-  # @param {object} selector - the field's HTML DOM object
   # @param {object} validation - the validation class object
   # @return {void}
   ###
-  _observeField: (field, selector, validation) ->
-    @response.createElementForPushMsg selector
+  _observeField: (field, validation) ->
+    @response.createElementForPushMsg field.selector
 
     # @invalidHandler
-    validation.init selector, field, @response
+    validation.init field, @response
 
 # Export class
 window.OmiseValidation  = {}

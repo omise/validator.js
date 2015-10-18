@@ -1,24 +1,18 @@
 class OmiseCcNameValidation
   constructor: ->
-    @respMessage = new window.OmiseValidation.messages
+    @respMessage  = new window.OmiseValidation.messages
+    @helper       = new window.OmiseValidation.helper
 
   ###
   # Initiate a validation
-  # @param {object} elem - a selector object of an element
   # @param {object} field - the field object (retrieve from @form variable)
+  # @param {object} response - the response handler class
   # @return {void}
   ###
-  init: (elem, field) =>
-    elem.onkeypress = (e) =>
+  init: (field, response) =>
+    field.selector.onkeypress = (e) =>
       e = e || window.event
-      validate = @_onkeypressEvent e, e.which, String.fromCharCode e.which
-
-      if validate isnt true
-        if typeof field.callback is 'function'
-          e.preventDefault()
-          field.callback()
-        else
-          return false
+      @_onkeypressEvent field, e, response
 
   ###
   # Validation method
@@ -27,8 +21,11 @@ class OmiseCcNameValidation
   # @return {void}
   ###
   validate: (value, fieldValue = null) ->
+    # Remove space before validate
+    value = value.replace /\s/g, ''
+
     # Don't be an empty
-    return @respMessage.get('emptyString') if value <= 0
+    return @respMessage.get('emptyString') if value.length <= 0
 
     # Allow: only alphabet character [A-Za-z]
     return @respMessage.get('alphabetOnly') if !/^[a-z]+$/gi.test value
@@ -36,18 +33,47 @@ class OmiseCcNameValidation
     return true
 
   ###
-  # Handler on-key-press event
+  # Validation for form submit event
+  # @param {string} value - an input value
+  # @return {void}
+  ###
+  submitValidate: (value) ->
+    # Don't be an empty
+    return @respMessage.get('emptyString') if value.length <= 0
+
+    return true
+
+  ###
+  # Capture and handle on-key-press event
+  # @param {object} field - the field object (retrieve from @form variable)
   # @param {object} e - an key event object
+  # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeypressEvent: (e, key, value) =>
-    switch key
-      # Allow: backspace, delete, tab, escape, home, end,
+  _onkeypressEvent: (field, e, response) =>
+    switch e.which
+      # Allow: delete, tab, escape, home, end,
       # left-right arrow and spacebar
-      when null, 0, 8, 9, 27, 32 then return true
+      when null, 0, 9, 27, 32 then return true
+      
+      # Detect: backspace
+      when 8
+        # Validate the field when it's dirty only
+        if @helper.dirty(e.target) is "true"
+          e.preventDefault()
 
+          @helper.deleteValueFromCaretPosition e.target
+        
+          response.result field, (@validate(e.target.value))
+      
       else
-        return @validate value, e.target.value
+        # Make the field dirty when type a character
+        @helper.beDirty e.target
+
+        input = String.fromCharCode e.which
+        value = e.target.value
+
+        response.result field, (@validate(value + input))
 
 # Export class
 window.OmiseValidation.ccname = OmiseCcNameValidation

@@ -62,4 +62,15 @@ class OmiseValidationResponseHandler
     
     @pushMessage elem, ''
 
+  result: (field, result) ->
+    if result isnt true
+      if typeof field.callback is 'function'
+        field.callback field, result
+      else if result is false
+        return false
+      else
+        @invalid field.selector, result
+    else
+      @valid field.selector
+
 window.OmiseValidation.response = OmiseValidationResponseHandler
