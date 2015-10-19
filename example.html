@@ -1,41 +1,67 @@
 <!DOCTYPE>
 <html>
 <head>
+    <meta charset="utf-8">
 </head>
 <body>
-    <h1>Validation form #1</h1>
-    <form>
-        <input placeholder="Full name"      type="text" name="omise_card_name"           id="omise_card_name">
-        <input placeholder="Card number"    type="text" name="omise_card_number"         id="omise_card_number">
-        <input placeholder="MM / YYYY"      type="text" name="omise_card_expiration"     id="omise_card_expiration">
-        <input placeholder="CVC"            type="text" name="omise_card_security"       id="omise_card_security">
-    </form>
+    <div class="wrapper">
+        <!-- Form 1 -->
+        <h1 class="mg-t30">Validation #1</h1>
+        <form id="omise_form">
+            <input placeholder="Full name"      type="text" name="omise_card_name"           id="omise_card_name">
+            <input placeholder="Card number"    type="text" name="omise_card_number"         id="omise_card_number">
+            <input placeholder="MM / YYYY"      type="text" name="omise_card_expiration"     id="omise_card_expiration">
+            <input placeholder="CVC"            type="text" name="omise_card_security"       id="omise_card_security">
 
-    <h1>Validation form #2</h1>
-    <form>
-        <input placeholder="Full name"     type="text" name="my_card_name"              class="my_card_name">
-        <input placeholder="Card number"   type="text" name="my_card_number"            class="my_card_number">
-        <input placeholder="MM"            type="text" name="my_card_expiration_month"  class="my_card_expiration_month">
-        <input placeholder="YYYY"          type="text" name="my_card_expiration_year"   class="my_card_expiration_year">
-        <input placeholder="CVC"           type="text" name="my_card_security"          class="my_card_security">
-    </form>
+            <button type="submit">Checkout</button>
+        </form>
+
+        <!-- Form 2, separate expiry month/year to 2 fields -->
+        <h1 class="mg-t30">Validation #2</h1>
+        <form class="my_custom_form">
+            <input placeholder="Full name"      type="text" name="my_card_name"              class="my_card_name">
+            <input placeholder="Card number"    type="text" name="my_card_number"            class="my_card_number">
+            <input placeholder="MM"             type="text" name="my_card_expiration_month"  class="my_card_expiration_month">
+            <input placeholder="YYYY"           type="text" name="my_card_expiration_year"   class="my_card_expiration_year">
+            <input placeholder="CVC"            type="text" name="my_card_security"          class="my_card_security">
+
+            <button type="submit">Checkout</button>
+        </form>
+    </div>
 
     <script src="./lib/js/validator.js"></script>
     <script>
-        var omise = new OmiseValidator;
+        var omise1, omise2;
 
-        omise.validates('omise_card_name', "ccName");
-        omise.validates('omise_card_number', "ccNumber");
-        omise.validates('omise_card_expiration', "ccExpiry");
-        omise.validates('omise_card_security', "ccSecure");
+        omise1 = new OmiseValidator;
+        
+        omise1.validates('omise_card_name', 'ccName');
+        omise1.validates('omise_card_number', 'ccNumber');
+        omise1.validates('omise_card_expiration', 'ccExpiry');
+        omise1.validates('omise_card_security', 'ccSecurityCode');
+        omise1.attachForm('omise_form');
 
-        omise.validates('.my_card_name', "ccName");
-        omise.validates('.my_card_number', "ccNumber");
-        omise.validates('.my_card_expiration_month', "ccExpiryMonth");
-        omise.validates('.my_card_expiration_year', "ccExpiryYear");
-        omise.validates('.my_card_security', "ccSecure");
 
-        omise.attach();
+
+        omise2 = new OmiseValidator;
+
+        omise2.validates('.my_card_name', "ccName");
+        // omise2.validates('.my_card_number', "ccNumber");
+        omise2.validates('.my_card_expiration_month', "ccExpiryMonth");
+        omise2.validates('.my_card_expiration_year', "ccExpiryYear");
+        omise2.validates('.my_card_security', "ccSecurityCode");
+        omise2.attachForm('.my_custom_form');
     </script>
+
+    <style>
+        body            { font-family: Verdana, Geneva, sans-serif; margin: 0; padding: 0; }
+        .wrapper        { width: 320px; margin: auto; }
+        form            { border-radius: 2px; border: 1px solid #eee; padding: 14px 14px 24px; display: block; background-color: #f5f5f5; }
+        input           { width: 100%; padding: 7px; border: 1px solid #eaeaea; }
+        button          { width: 100%; padding: 10px; background-color: #60C0E1; color: #fff; border: 0; cursor: pointer; }
+        button:hover    { background-color: #42A5C8; }
+
+        .mg-t30         { margin-top: 30px; }
+    </style>
 </body>
 </html>

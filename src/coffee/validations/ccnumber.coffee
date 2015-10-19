@@ -1,52 +1,52 @@
 class OmiseCcNumberValidation
   constructor: ->
-    @respMessage = new window.OmiseValidation.messages
+    @respMessage  = new window.OmiseValidation.messages
+    @helper       = new window.OmiseValidation.helper
 
     # List of card that be accepted
     @cards = [
         type      : 'mastercard'
         pattern   : /^5[1-5]/
-        format    : 'xxxx-xxxx-xxxx-xxxx'
+        format    : '#### #### #### ####'
         length    : 16
-        cvcLength : 3
-        icon      : '../../assets/images/icon-mastercard.png' 
+        icon      : '../../assets/images/icon-mastercard.png'
       ,
         type      : 'visa'
         pattern   : /^4/
-        format    : 'xxxx-xxxx-xxxx-xxxx'
+        format    : '#### #### #### ####'
         length    : 16
-        cvcLength : 3
-        icon      : '../../assets/images/icon-visa.png' 
+        icon      : '../../assets/images/icon-visa.png'
       ,
         type      : 'visa_old'
         pattern   : /^4/
-        format    : 'xxxx-xxx-xxx-xxx'
+        format    : '#### ### ### ###'
         length    : 13
-        cvcLength : 3
-        icon      : '../../assets/images/icon-visa.png' 
+        icon      : '../../assets/images/icon-visa.png'
     ]
 
-    @default =
-      strLimit: 16
-
-    @cardIcons        =
-      visa            : null
-      mastercard      : null
+    @cardUnknow =
+      type      : 'unknow'
+      format    : '#### #### #### ####'
+      length    : 16
+      cvcLength : 3
 
   ###
   # Initiate a validation
-  # @param {object} elem - a selector object of an element
   # @param {object} field - the field object (retrieve from @form variable)
+  # @param {object} response - the response handler class
   # @return {void}
   ###
-  init: (elem, field) =>
+  init: (field, response) =>
     # Initiate credit card icon
-    @_appendCcIcon elem
+    @_appendCcIcon field.selector
 
-    elem.onkeypress = (e) =>
+    field.selector.onkeypress = (e) =>
       e = e || window.event
-      # @_onkeypressEvent e, e.which, String.fromCharCode e.which
-      @_onkeypressEvent elem, field, e
+      @_onkeypressEvent field, e, response
+
+    field.selector.onblur = (e) =>
+      e = e || window.event
+      @_onblurEvent field, e, response
 
   ###
   # Validation method
@@ -54,12 +54,9 @@ class OmiseCcNumberValidation
   # @param {string} fieldValue - a current value
   # @return {void}
   ###
-  validate: (value, fieldValue = null) ->
+  validate: (value, fieldValue = "") ->
     # Don't be an empty
     return @respMessage.get('emptyString') if value.length <= 0
-
-    # Allow: only digit character [0-9]
-    return @respMessage.get('digitOnly') if !/^\d+$/.test(value)
 
     return true
 
@@ -79,47 +76,114 @@ class OmiseCcNumberValidation
       parent.appendChild e
 
   ###
-  # Handler on-key-press event
-  # @param {object} elem - a selector object of an element
+  # Validate input card pattern
+  # @param {string} num   - An input card number
+  # @return {array}
+  ###
+  _validateCardPattern: (num) ->
+    num = (num + '').replace(/\D/g, '')
+
+    return _card for _card in @cards when _card.pattern.test(num) is true
+    
+
+  _format: (value = "", input = "", card, caret = null) ->
+    if caret != value.length
+      _value = value.split ''
+      _value.splice caret, 0, input
+      _value = _value.join ''
+
+      _value = _value.match /\d/g
+      _value = _value.join ''
+
+    else
+      _value = "#{value}#{input}"
+
+    return @_reFormat _value, card
+
+  ###
+  # Validate input card pattern
+  # @param {string} num   - An input card number
+  # @return {string} formatted value
+  ###
+  _reFormat: (value = "", card) ->
+    return value if value.length is 0
+
+    value   = value.match /\d/g
+    value   = value?.join "" || ""
+
+    _value  = ""
+    _pos    = 0
+
+    for char, i in card.format
+      if char is "#"
+        if _pos < value.length
+          _value += value[_pos]
+          _pos += 1
+        else
+          break
+      else
+        _value += char
+
+    return _value
+
+  ###
+  # Capture and handle on-key-press event
   # @param {object} field - the field object (retrieve from @form variable)
   # @param {object} e - an key event object
+  # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeypressEvent: (elem, field, e) =>
+  _onkeypressEvent: (field, e, response) =>
     switch e.which
-      # Allow: delete, tab, escape, home, end and left-right arrow
+      # Allow: delete, tab, escape, home, end,
+      # and left-right arrow
       when null, 0, 9, 27 then return true
       
+      # Detect: backspace
       when 8
-        # ...
+        e.preventDefault()
+
+        if (pos = @helper.getCaretPosition(e.target)) != 0
+          beDeleted = e.target.value[pos-1]
+
+          if /\s/.test beDeleted
+            pos = @helper.deleteValueFromCaretPosition e.target, 2
+          else
+            pos = @helper.deleteValueFromCaretPosition e.target
+
+          card  = @_validateCardPattern(e.target.value) || @cardUnknow
+        
+          # Set formatted value
+          e.target.value = @_reFormat e.target.value, card
+
+          # Set new caret position
+          @helper.setCaretPosition e.target, pos
 
       else
-        value       = String.fromCharCode e.which
-        fieldValue  = e.target.value
+        e.preventDefault()
 
-        
+        # Validate the field when it's dirty only
+        input = String.fromCharCode e.which
+        value = e.target.value
 
-        if (validate = @validate(value, fieldValue)) isnt true
-          console.log validate
+        # Allow: only digit character [0-9]
+        return false if !/^\d+$/.test input
 
-          if typeof field.callback is 'function'
-            e.preventDefault()
-            field.callback()
-          else
-            console.log 'asd'
-            return false
-    
-        # return 
+        card = @_validateCardPattern("#{value}#{input}") || @cardUnknow
 
-  # ###
-  # # Validate input card pattern
-  # # @param {string} num   - An input card number
-  # # @return {array}
-  # ###
-  # _validateCardPattern: (num) ->
-  #   num = (num + '').replace(/\D/g, '')
+        return false if (value.replace(/\D/g, '') + input).length > card.length
 
-  #   return _card for _card in @cards when _card.pattern.test(num) is true
+        # Format the input value
+        caret           = e.target.selectionStart
+        e.target.value  = @_format value, input, card, caret
+
+        # Set new caret position
+        @helper.setCaretPosition e.target, caret+1
+
+        if @helper.dirty(e.target) is "true"
+          response.result field, (@validate(e.target.value))
+
+  
 
   # ###
   # # Show a valid credit card logo
@@ -263,18 +327,6 @@ class OmiseCcNumberValidation
 
 
 
-
-
-
-
-
-
-
-        
-
-        
-
-        
                 
         
         
@@ -287,6 +339,18 @@ class OmiseCcNumberValidation
 
   #       result = @_formatting card, _evalue, _inp
   #       (e.preventDefault() ; e.target.value = result) unless !result
+
+  ###
+  # Capture and handle on-blur event
+  # @param {object} field - the field object (retrieve from @form variable)
+  # @param {object} e - an key event object
+  # @param {object} response - the response handler class
+  # @return {boolean}
+  ###
+  _onblurEvent: (field, e, response) =>
+    # Make the field dirty if these field's value is not empty
+    if e.target.value.length > 0
+      @helper.beDirty e.target
 
 # Export class
 window.OmiseValidation.ccnumber = OmiseCcNumberValidation

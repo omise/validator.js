@@ -180,7 +180,7 @@ class OmiseValidator
 
       for field, i in form.fields
         field.selector.dataset.dirty = true
-        validate = field.validates.submitValidate field.selector.value
+        validate = field.validates.validate field.selector.value
 
         if validate isnt true
           if typeof field.callback is 'function'

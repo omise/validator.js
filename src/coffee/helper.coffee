@@ -16,7 +16,7 @@ class Helper
     elem.focus()
     elem.setSelectionRange pos, pos
 
-    return
+    return pos
 
   ###
   # Get caret position

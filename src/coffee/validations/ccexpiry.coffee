@@ -4,14 +4,12 @@ class OmiseCcExpiryValidation
     @helper       = new window.OmiseValidation.helper
 
     # Limitation of an input length
-    @strLimit = 6
+    @strLimit     = 6
 
     # Field's display pattern (mm / YYYY)
     @pattern      = '## / ####'
     @format       = /^(0[1-9]|1[0-2]) \/ ([0-9]{2}|[0-9]{4})$/
-    @formatMonth  = /^(0[1-9]|1[0-2])/
-    @formatYear   = /([0-9]{2}|[0-9]{4})$/
-
+    
   ###
   # Initiate a validation
   # @param {object} field - the field object (retrieve from @form variable)
@@ -27,12 +25,11 @@ class OmiseCcExpiryValidation
       e = e || window.event
       @_onblurEvent field, e, response
 
-
   ###
   # Validation method
-  # @param {string} value - an input value
-  # @param {string} fieldValue - a current value
-  # @return {void}
+  # @param {string} value - a value that coming from typing
+  # @param {string} fieldValue - a current field's value
+  # @return {string|boolean}
   ###
   validate: (value, fieldValue = "") ->
     # Don't be an empty
@@ -44,27 +41,20 @@ class OmiseCcExpiryValidation
     return true
 
   ###
-  # Validation for form submit event
-  # @param {string} value - an input value
-  # @return {void}
+  # Prevent the field from a word that will be invalid
+  # @param {string} input - a value that coming from typing
+  # @param {string} value - a current field's value
+  # @return {boolean}
   ###
-  submitValidate: (value) ->
-    # Don't be an empty
-    return @respMessage.get('emptyString') if value.length <= 0
-
-    return @respMessage.get('expiryFormat') if !@format.test value
-
-    return true
-
-  _preventCharacter: (value) ->
+  _preventCharacter: (input, value) ->
     # Remove space before validate
-    value = value.replace /\ \/\ /g, ''
+    input = input.replace /\ \/\ /g, ''
 
     # Allow: only digit character [0-9]
-    return false if !/^\d+$/.test value
+    return false if !/^\d+$/.test input
 
     # Length limit
-    return false if value.length > @strLimit
+    return false if input.length > @strLimit
 
     return true
 
@@ -74,7 +64,7 @@ class OmiseCcExpiryValidation
 
     else if caret != value.length
       _value = value.split ''
-      _value.splice(caret, 0, input);
+      _value.splice caret, 0, input
       _value = _value.join ''
 
       _value = _value.match /\d/g
@@ -123,9 +113,21 @@ class OmiseCcExpiryValidation
       when 8
         e.preventDefault()
 
-        @helper.deleteValueFromCaretPosition e.target
+        if (pos = @helper.getCaretPosition(e.target)) != 0
+          beDeleted = e.target.value[pos-1]
 
-        e.target.value = @_reFormat e.target.value
+          switch (pos - 1)
+            when 4, 3, 2
+              pos = @helper.deleteValueFromCaretPosition e.target, (pos - 1)
+            
+            else
+              pos = @helper.deleteValueFromCaretPosition e.target
+
+          # Set formatted value
+          e.target.value = @_reFormat e.target.value
+
+          # Set new caret position
+          @helper.setCaretPosition e.target, pos
 
         if @helper.dirty(e.target) is "true"
           response.result field, (@validate(e.target.value))

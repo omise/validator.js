@@ -1,9 +1,50 @@
-.omise_card_number_card
+.omise_validation_wrapper
+  display: block
+  position: relative
+  margin-bottom: 10px
+
+.omise_validation_msg
+  display: none
+
+.omise_validation_wrapper.invalid
+  input
+    border: 1px solid #E67683
+
+  .omise_validation_msg
+    display: inline-block
+    color: #EA7A6E
+    font-size: 80%
+
+.omise_validation_wrapper.invalid.popup
+  input
+    border: 1px solid #EABD6E
+
+  .omise_validation_msg
+    display: inline-block
+    font-size: 70%
+    position: absolute
+    width: 96%
+    left: 0
+    top: 100%
+    background: #EABD6E
+    color: #fff
+    padding: 2%
+    z-index: 99
+
+.omise_validation_wrapper.valid
+  input
+    border-color: #87D0E7
+
+  .omise_validation_msg
+    display: none
+
+.omise_ccnumber_card
   position: absolute
   top: 50%
   right: 5%
   margin-top: -12px
   display: none
 
-.omise_card_number_card.valid
+.omise_ccnumber_card.valid
   display: block
+

@@ -19,30 +19,31 @@ class OmiseCcSecurityCodeValidation
 
   ###
   # Validation method
-  # @param {string} value - an input value
-  # @param {string} fieldValue - a current value
-  # @return {void}
+  # @param {string} value - a value that coming from typing
+  # @param {string} fieldValue - a current field's value
+  # @return {string|boolean}
   ###
   validate: (value, fieldValue = null) ->
     # Don't be an empty
     return @respMessage.get('emptyString') if value.length <= 0
     
-    # Length limit
-    return false if value.length > @strLimit
-
     # Allow: only digit character [0-9]
-    return false if !/^\d+$/.test value
+    return @respMessage.get('digitOnly') if !/^\d+$/.test value
 
     return true
 
   ###
-  # Validation for form submit event
-  # @param {string} value - an input value
-  # @return {void}
+  # Prevent the field from a word that will be invalid
+  # @param {string} input - a value that coming from typing
+  # @param {string} value - a current field's value
+  # @return {boolean}
   ###
-  submitValidate: (value) ->
-    # Don't be an empty
-    return @respMessage.get('emptyString') if value.length <= 0
+  _preventCharacter: (input, value) ->
+    # Length limit
+    return false if (value + input).length > @strLimit
+
+    # Allow: only digit character [0-9]
+    return false if !/^\d+$/.test input
 
     return true
 
@@ -61,12 +62,13 @@ class OmiseCcSecurityCodeValidation
 
       # Detect: backspace
       when 8
-        # Validate the field when it's dirty only
-        if @helper.dirty(e.target) is "true"
-          e.preventDefault()
-            
+        e.preventDefault()
+
+        if (@helper.getCaretPosition(e.target)) != 0
           @helper.deleteValueFromCaretPosition e.target
-          
+
+        # Validate the field when it's dirty only
+        if (@helper.dirty(e.target)) is "true"
           response.result field, (@validate(e.target.value))
 
       else
@@ -75,6 +77,8 @@ class OmiseCcSecurityCodeValidation
 
         input = String.fromCharCode e.which
         value = e.target.value
+
+        return false unless @_preventCharacter input, value
 
         response.result field, (@validate(value + input))
 

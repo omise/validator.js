@@ -16,9 +16,9 @@ class OmiseCcNameValidation
 
   ###
   # Validation method
-  # @param {string} value - an input value
-  # @param {string} fieldValue - a current value
-  # @return {void}
+  # @param {string} value - a value that coming from typing
+  # @param {string} fieldValue - a current field's value
+  # @return {string|boolean}
   ###
   validate: (value, fieldValue = null) ->
     # Remove space before validate
@@ -29,17 +29,6 @@ class OmiseCcNameValidation
 
     # Allow: only alphabet character [A-Za-z]
     return @respMessage.get('alphabetOnly') if !/^[a-z]+$/gi.test value
-
-    return true
-
-  ###
-  # Validation for form submit event
-  # @param {string} value - an input value
-  # @return {void}
-  ###
-  submitValidate: (value) ->
-    # Don't be an empty
-    return @respMessage.get('emptyString') if value.length <= 0
 
     return true
 
@@ -58,12 +47,13 @@ class OmiseCcNameValidation
       
       # Detect: backspace
       when 8
-        # Validate the field when it's dirty only
-        if @helper.dirty(e.target) is "true"
-          e.preventDefault()
+        e.preventDefault()
 
+        if (@helper.getCaretPosition(e.target)) != 0
           @helper.deleteValueFromCaretPosition e.target
-        
+
+        # Validate the field when it's dirty only
+        if (@helper.dirty(e.target)) is "true"
           response.result field, (@validate(e.target.value))
       
       else
