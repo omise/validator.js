@@ -89,7 +89,7 @@ class OmiseValidator
   # @param {string} form - name of a form element
   # @return {void}
   ###
-  attachForm: (form = null) ->
+  attachForm: (form = null, failureCallback = null, successCallback = null) ->
     if form?
       # Retrieve a selector
       @form.form = @_manipulateSelectors form
@@ -118,7 +118,7 @@ class OmiseValidator
           @form.fields[i] = field
 
       # Listen submit event
-      @_observeForm @form
+      @_observeForm @form, failureCallback, successCallback
       return
 
   ###
@@ -170,30 +170,37 @@ class OmiseValidator
     l.parentNode.appendChild e
 
   ###
-  # Set an observation to listen form event
-  # @param {object} form - the form object (retrieve from @form variable)
+  # Listen to form event
+  # @param {object} form - the form that be retrieved from @form variable
   # @return {void}
   ###
-  _observeForm: (form) ->
+  _observeForm: (form, failureCallback = null, successCallback = null) ->
     form.form.addEventListener 'submit', (e) =>
       e.preventDefault()
 
+      _err = false
       for field, i in form.fields
         field.selector.dataset.dirty = true
-        validate = field.validates.validate field.selector.value
 
-        if validate isnt true
-          if typeof field.callback is 'function'
-            field.callback()
-          else
-            @response.invalid field.selector, validate
+        result = field.validates.validate field.selector.value
+
+        _err = true if result isnt true
+
+        @response.result field, result
+
+      if _err is false
+        if typeof successCallback is 'function'
+          successCallback form
         else
-          @response.valid field.selector
+          form.form.submit()
+
+      else if typeof failureCallback is 'function'
+        failureCallback form
     , false
 
   ###
-  # Set an observation to listen field event
-  # @param {object} field - the field object (retrieve from @form variable)
+  # Listen to field event
+  # @param {object} field - the field that be retrieved from @form variable
   # @param {object} validation - the validation class object
   # @return {void}
   ###
