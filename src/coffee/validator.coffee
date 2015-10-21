@@ -17,9 +17,15 @@ class OmiseValidator
 
   ###
   # Set a validation to an element
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
   # @param {string} rule - the name of a validation
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
   validates: (field, rule, callback = null) ->
@@ -32,64 +38,114 @@ class OmiseValidator
 
   ###
   # Verbose way of the 'CcName' validation
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
-  validateCcName: (field, callback) ->
+  validateCcName: (field, callback = null) ->
     @validates field, 'ccName', callback
 
   ###
   # Verbose way of the 'validateCcNumber' validation
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
-  validateCcNumber: (field, callback) ->
+  validateCcNumber: (field, callback = null) ->
     @validates field, 'ccNumber', callback
 
   ###
   # Verbose way of the 'validateCcExpiry' validation
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
-  validateCcExpiry: (field, callback) ->
+  validateCcExpiry: (field, callback = null) ->
     @validates field, 'ccExpiry', callback
 
   ###
   # Verbose way of the 'validateCcExpiryMonth' validation
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
-  validateCcExpiryMonth: (field, callback) ->
+  validateCcExpiryMonth: (field, callback = null) ->
     @validates field, 'ccExpiryMonth', callback
 
   ###
   # Verbose way of the 'validateCcExpiryYear' validation
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
-  validateCcExpiryYear: (field, callback) ->
+  validateCcExpiryYear: (field, callback = null) ->
     @validates field, 'ccExpiryYear', callback
 
   ###
   # Verbose way of the 'validateCcSecurityCode' validation
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {string} field - the name of an element that have to validate
-  # @param {function} [default=null] callback - the callback function
+  # @param {failureCallback} [default=null] callback - the callback function
   # @return {void}
   ###
-  validateCcSecurityCode: (field, callback) ->
+  validateCcSecurityCode: (field, callback = null) ->
     @validates field, 'ccSecurityCode', callback
 
   ###
-  # Attach all of an validation to a selector
-  # @param {string} form - name of a form element
+  # Attach all of a validation to a selector
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
+  # @callback successCallback
+  # @param {object} form - a form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
+  # @param {string} form - the name of a form element
+  # @param {failureCallback} fc - will be executed when the form is invalid
+  # @param {successCallback} sc - will be executed when the form is valid
   # @return {void}
   ###
-  attachForm: (form = null, failureCallback = null, successCallback = null) ->
+  attachForm: (form = null, fc = null, sc = null) ->
     if form?
       # Retrieve a selector
       @form.form = @_manipulateSelectors form
@@ -118,7 +174,7 @@ class OmiseValidator
           @form.fields[i] = field
 
       # Listen submit event
-      @_observeForm @form, failureCallback, successCallback
+      @_observeForm @form, fc, sc
       return
 
   ###
@@ -126,14 +182,14 @@ class OmiseValidator
   # @param {string} target - the name of an element
   # @return {object} a HTML DOM object
   ###
-  _manipulateSelectors: (target = {}) ->
+  _manipulateSelectors: (target) ->
     return switch target[0]
       when "#" then document.getElementById target.substring(1)
       when "." then (document.getElementsByClassName target.substring(1))[0]
       else document.getElementById(target)
 
   ###
-  # Transform a normal field to be a validated field
+  # Transform a target field to be a validated field
   # @param {object} elem - an element that is a target
   # @param {string} prefix - The name that will be a prefix of an element's id
   # @return {void}
@@ -170,11 +226,27 @@ class OmiseValidator
     l.parentNode.appendChild e
 
   ###
-  # Listen to form event
+  # Listen to form event.
+  # @callback failureCallback
+  # @param {object} form - the form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
+  # @callback successCallback
+  # @param {object} form - a form object
+  # @param {object} form.form - a selector of the form target element
+  # @param {object} form.fields - a field objects
+  # @see more the property list of form.fields in '@validates' method
+  #
   # @param {object} form - the form that be retrieved from @form variable
+  # @param {object} form.form - a selector of form target element
+  # @param {object} form.fields - a field objects
+  # @param {failureCallback} fc - will be executed when the form is invalid
+  # @param {successCallback} sc - will be executed when the form is valid
   # @return {void}
   ###
-  _observeForm: (form, failureCallback = null, successCallback = null) ->
+  _observeForm: (form, fc = null, sc = null) ->
     form.form.addEventListener 'submit', (e) =>
       e.preventDefault()
 
@@ -186,28 +258,31 @@ class OmiseValidator
 
         _err = true if result isnt true
 
-        @response.result field, result
+        @response.result e, field, result
 
       if _err is false
-        if typeof successCallback is 'function'
-          successCallback form
+        if typeof sc is 'function'
+          sc form
         else
           form.form.submit()
 
-      else if typeof failureCallback is 'function'
-        failureCallback form
+      else if typeof fc is 'function'
+        fc form
     , false
 
   ###
   # Listen to field event
   # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
   # @param {object} validation - the validation class object
   # @return {void}
   ###
   _observeField: (field, validation) ->
     @response.createElementForPushMsg field.selector
 
-    # @invalidHandler
     validation.init field, @response
 
 # Export class

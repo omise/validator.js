@@ -6,8 +6,8 @@ module.exports = (grunt) ->
       coffeelint:
         files: [
           'src/coffee/validator.coffee'
-          'src/coffee/validationResponseHandler.coffee'
-          'src/coffee/validationResponseMessage.coffee'
+          'src/coffee/validationResponse.coffee'
+          'src/coffee/validationMessage.coffee'
           'src/coffee/helper.coffee'
           'src/coffee/validations/*.coffee'
         ]
@@ -16,8 +16,8 @@ module.exports = (grunt) ->
       coffee:
         files: [
           'src/coffee/validator.coffee'
-          'src/coffee/validationResponseHandler.coffee'
-          'src/coffee/validationResponseMessage.coffee'
+          'src/coffee/validationResponse.coffee'
+          'src/coffee/validationMessage.coffee'
           'src/coffee/helper.coffee'
           'src/coffee/validations/*.coffee'
         ]
@@ -26,8 +26,8 @@ module.exports = (grunt) ->
     coffeelint:
       app: [
         'src/coffee/validator.coffee'
-        'src/coffee/validationResponseHandler.coffee'
-        'src/coffee/validationResponseMessage.coffee'
+        'src/coffee/validationResponse.coffee'
+        'src/coffee/validationMessage.coffee'
         'src/coffee/helper.coffee'
         'src/coffee/validations/*.coffee'
       ]
@@ -37,8 +37,8 @@ module.exports = (grunt) ->
         files:
           'lib/js/validator.js': [
             'src/coffee/validator.coffee'
-            'src/coffee/validationResponseHandler.coffee'
-            'src/coffee/validationResponseMessage.coffee'
+            'src/coffee/validationResponse.coffee'
+            'src/coffee/validationMessage.coffee'
             'src/coffee/helper.coffee'
             'src/coffee/validations/*.coffee'
           ]
