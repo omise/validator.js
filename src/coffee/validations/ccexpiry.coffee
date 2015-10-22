@@ -11,15 +11,15 @@ class OmiseCcExpiryValidation
     @format       = /^(0[1-9]|1[0-2]) \/ ([0-9]{2}|[0-9]{4})$/
     
   ###
-  # Initiate a validation
+  # Initiate the validation
   # @param {object} field - the field object (retrieve from @form variable)
   # @param {object} response - the response handler class
   # @return {void}
   ###
   init: (field, response) =>
-    field.selector.onkeypress = (e) =>
+    field.selector.onkeydown = (e) =>
       e = e || window.event
-      @_onkeypressEvent field, e, response
+      @_onkeydownEvent field, e, response
 
     field.selector.onblur = (e) =>
       e = e || window.event
@@ -103,7 +103,7 @@ class OmiseCcExpiryValidation
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeypressEvent: (field, e, response) =>
+  _onkeydownEvent: (field, e, response) =>
     switch e.which
       # Allow: delete, tab, escape, home, end,
       # and left-right arrow
@@ -118,10 +118,10 @@ class OmiseCcExpiryValidation
 
           switch (pos - 1)
             when 4, 3, 2
-              pos = @helper.deleteValueFromCaretPosition e.target, (pos - 1)
+              pos = @helper.delValFromCaretPosition e.target, (pos - 1)
             
             else
-              pos = @helper.deleteValueFromCaretPosition e.target
+              pos = @helper.delValFromCaretPosition e.target
 
           # Set formatted value
           e.target.value = @_reFormat e.target.value
@@ -130,7 +130,7 @@ class OmiseCcExpiryValidation
           @helper.setCaretPosition e.target, pos
 
         if @helper.dirty(e.target) is "true"
-          response.result field, (@validate(e.target.value))
+          response.result e, field, (@validate(e.target.value))
 
       else
         e.preventDefault()
@@ -150,7 +150,7 @@ class OmiseCcExpiryValidation
           @helper.setCaretPosition e.target, caret + 1
 
         if @helper.dirty(e.target) is "true"
-          response.result field, (@validate(e.target.value))
+          response.result e, field, (@validate(e.target.value))
 
   ###
   # Capture and handle on-blur event

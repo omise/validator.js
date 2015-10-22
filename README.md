@@ -150,3 +150,33 @@ The **Advanced Integration** is the another awesome way to integrate Omise's `va
   validator.attachForm('my_form'); // <form id="my_form">...</form>
 </script>
 ```
+
+HTML Structure
+--------------
+When we attach the validation ability to a field, it will transform from
+```html
+<input id="my_card_name">
+```
+to be
+```html
+<span class="omise_validation_wrapper" id="[field_target_id/class]_wrapper">
+  <input data-validation-msg="[field_target_id/class]_validation_msg" data-dirty="false" data-wrapper="[field_target_id/class]_wrapper" id="my_card_name">
+  <span class="omise_validation_msg" id="[field_target_id/class]_validation_msg"></span>
+</span>
+```
+
+### Invalid structure
+```html
+<span class="omise_validation_wrapper" id="[field_target_id/class]_wrapper invalid">
+  <input data-validation-msg="[field_target_id/class]_validation_msg" data-dirty="true" data-wrapper="[field_target_id/class]_wrapper" id="my_card_name">
+  <span class="omise_validation_msg" id="[field_target_id/class]_validation_msg">invalid message</span>
+</span>
+```
+
+### Valid structure
+```html
+<span class="omise_validation_wrapper" id="[field_target_id/class]_wrapper valid">
+  <input data-validation-msg="[field_target_id/class]_validation_msg" data-dirty="true" data-wrapper="[field_target_id/class]_wrapper" id="my_card_name">
+  <span class="omise_validation_msg" id="[field_target_id/class]_validation_msg"></span>
+</span>
+```

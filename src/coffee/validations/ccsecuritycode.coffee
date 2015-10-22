@@ -1,40 +1,47 @@
 class OmiseCcSecurityCodeValidation
   constructor: ->
-    @respMessage  = new window.OmiseValidation.messages
-    @helper       = new window.OmiseValidation.helper
+    @_validates = new window.OmiseValidation.validates
+    @_message   = new window.OmiseValidation.messages
+    @_helper    = new window.OmiseValidation.helper
 
     # Limitation of an input length
     @strLimit = 4
 
   ###
-  # Initiate a validation
-  # @param {object} field - the field object (retrieve from @form variable)
+  # Initiate the validation event
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
   # @param {object} response - the response handler class
   # @return {void}
   ###
   init: (field, response) =>
-    field.selector.onkeypress = (e) =>
-      e = e || window.event
-      @_onkeypressEvent field, e, response
+    field.selector.onkeydown = (e) =>
+      e       = e || window.event
+      e.which = e.which || e.keyCode || 0
+
+      @_onkeydownEvent e, field, response
 
   ###
-  # Validation method
-  # @param {string} value - a value that coming from typing
-  # @param {string} fieldValue - a current field's value
+  # Validate an input
+  # @param {string} value - a value that retrieve from typing
+  # @param {string} [fieldValue=null] - a current field's value
   # @return {string|boolean}
   ###
   validate: (value, fieldValue = null) ->
     # Don't be an empty
-    return @respMessage.get('emptyString') if value.length <= 0
+    return @_message.get('emptyString') if @_validates.isEmpty value
     
     # Allow: only digit character [0-9]
-    return @respMessage.get('digitOnly') if !/^\d+$/.test value
+    return @_message.get('digitOnly') unless @_validates.isDigit value
 
     return true
 
   ###
   # Prevent the field from a word that will be invalid
-  # @param {string} input - a value that coming from typing
+  # @param {string} input - a value that retrieve from typing
   # @param {string} value - a current field's value
   # @return {boolean}
   ###
@@ -43,44 +50,49 @@ class OmiseCcSecurityCodeValidation
     return false if (value + input).length > @strLimit
 
     # Allow: only digit character [0-9]
-    return false if !/^\d+$/.test input
+    return false unless @_validates.isDigit input
 
     return true
 
   ###
-  # Capture and handle on-key-press event
-  # @param {object} field - the field object (retrieve from @form variable)
+  # Capture and handle on-key-down event
   # @param {object} e - an key event object
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeypressEvent: (field, e, response) =>
-    switch e.which
-      # Allow: delete, tab, escape, home, end,
-      # and left-right arrow
-      when null, 0, 9, 27 then return true
+  _onkeydownEvent: (e, field, response) =>
+    if e.metaKey is false and e.altKey is false and e.ctrlKey is false
+      switch e.which
+        # Allow: delete, tab, escape, home, end,
+        # and left-right arrow
+        when null, 0, 9, 27, 37, 39 then return true
 
-      # Detect: backspace
-      when 8
-        e.preventDefault()
+        # Detect: backspace
+        when 8
+          e.preventDefault()
 
-        if (@helper.getCaretPosition(e.target)) != 0
-          @helper.deleteValueFromCaretPosition e.target
+          if (@_helper.getCaretPosition(e.target)) isnt 0
+            @_helper.delValFromCaretPosition e.target
 
-        # Validate the field when it's dirty only
-        if (@helper.dirty(e.target)) is "true"
-          response.result field, (@validate(e.target.value))
+          # Validate the field when it's dirty only
+          if (@_helper.dirty(e.target)) is "true"
+            response.result e, field, (@validate(e.target.value))
 
-      else
-        # Make the field dirty when type a character
-        @helper.beDirty e.target
+        else
+          input = String.fromCharCode e.which
+          value = e.target.value
 
-        input = String.fromCharCode e.which
-        value = e.target.value
+          # Make the field dirty when type a character
+          @_helper.beDirty e.target
 
-        return false unless @_preventCharacter input, value
+          return false unless @_preventCharacter input, value
 
-        response.result field, (@validate(value + input))
+          response.result e, field, (@validate(value + input))
 
 # Export class
 window.OmiseValidation.ccsecuritycode = OmiseCcSecurityCodeValidation

@@ -5,7 +5,7 @@ class Helper
   # @param {int} length - number of string's length that need to slice
   # @return {void}
   ###
-  deleteValueFromCaretPosition: (elem, length = 1) ->
+  delValFromCaretPosition: (elem, length = 1) ->
     if ((pos = elem.selectionStart - length) >= 0)
       # Set a new value into element
       elem.value = elem.value.slice(0, pos) + elem.value.slice(pos + length)

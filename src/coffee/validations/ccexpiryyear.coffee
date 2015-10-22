@@ -7,15 +7,15 @@ class OmiseCcExpiryYearValidation
     @strLimit = 4
 
   ###
-  # Initiate a validation
+  # Initiate the validation
   # @param {object} field - the field object (retrieve from @form variable)
   # @param {object} response - the response handler class
   # @return {void}
   ###
   init: (field, response) =>
-    field.selector.onkeypress = (e) =>
+    field.selector.onkeydown = (e) =>
       e = e || window.event
-      @_onkeypressEvent field, e, response
+      @_onkeydownEvent field, e, response
 
   ###
   # Validation method
@@ -54,7 +54,7 @@ class OmiseCcExpiryYearValidation
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeypressEvent: (field, e, response) =>
+  _onkeydownEvent: (field, e, response) =>
     switch e.which
       # Allow: delete, tab, escape, home, end,
       # and left-right arrow
@@ -65,11 +65,11 @@ class OmiseCcExpiryYearValidation
         e.preventDefault()
 
         if (@helper.getCaretPosition(e.target)) != 0
-          @helper.deleteValueFromCaretPosition e.target
+          @helper.delValFromCaretPosition e.target
 
         # Validate the field when it's dirty only
         if (@helper.dirty(e.target)) is "true"
-          response.result field, (@validate(e.target.value))
+          response.result e, field, (@validate(e.target.value))
 
       else
         # Make the field dirty when type a character
@@ -80,7 +80,7 @@ class OmiseCcExpiryYearValidation
 
         return false unless @_preventCharacter input, value
 
-        response.result field, (@validate(value + input))
+        response.result e, field, (@validate(value + input))
 
 # Export class
 window.OmiseValidation.ccexpiryyear = OmiseCcExpiryYearValidation
