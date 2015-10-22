@@ -34,7 +34,11 @@ class OmiseCcNumberValidation
 
   ###
   # Initiate the validation event
-  # @param {object} field - the field object (retrieve from @form variable)
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
   # @param {object} response - the response handler class
   # @return {void}
   ###
@@ -43,12 +47,16 @@ class OmiseCcNumberValidation
     @_appendCcIcon field.selector
 
     field.selector.onkeydown = (e) =>
-      e = e || window.event
-      @_onkeydownEvent field, e, response
+      e       = e || window.event
+      e.which = e.which || e.keyCode || 0
+
+      @_onkeydownEvent e, field, response
 
     field.selector.onblur = (e) =>
-      e = e || window.event
-      @_onblurEvent field, e, response
+      e       = e || window.event
+      e.which = e.which || e.keyCode || 0
+
+      @_onblurEvent e, field, response
 
   ###
   # Validate an input
@@ -154,12 +162,16 @@ class OmiseCcNumberValidation
 
   ###
   # Capture and handle on-key-down event
-  # @param {object} field - the field object (retrieve from @form variable)
   # @param {object} e - an key event object
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeydownEvent: (field, e, response) =>
+  _onkeydownEvent: (e, field, response) =>
     if e.metaKey is false and e.altKey is false and e.ctrlKey is false
       switch e.which
         # Allow: delete, tab, escape, home, end,
@@ -220,15 +232,22 @@ class OmiseCcNumberValidation
 
   ###
   # Capture and handle on-blur event
-  # @param {object} field - the field object (retrieve from @form variable)
   # @param {object} e - an key event object
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onblurEvent: (field, e, response) =>
+  _onblurEvent: (e, field, response) =>
     # Make the field dirty if these field's value is not empty
     if e.target.value.length > 0
       @_helper.beDirty e.target
+
+    if @_helper.dirty(e.target) is "true"
+      response.result e, field, (@validate(e.target.value))
 
 # Export class
 window.OmiseValidation.ccnumber = OmiseCcNumberValidation

@@ -55,7 +55,7 @@ class OmiseCcNameValidation
       switch e.which
         # Allow: caps-lock, delete, tab, escape, home, end,
         # left-right arrow and spacebar
-        when null, 0, 20, 9, 27, 32 then return true
+        when null, 0, 20, 9, 27, 32, 37, 39 then return true
         
         # Detect: backspace
         when 8
