@@ -213,19 +213,6 @@ class OmiseValidator
     elem.dataset.dirty    = false
 
   ###
-  # Initiate the default style sheet element
-  # @return {void}
-  ###
-  _initDefaultStyleSheet: do ->
-    e      = document.createElement 'link'
-    e.rel  = 'stylesheet'
-    e.href = '../../assets/styles/omise-validation.css'
-
-    l = document.documentElement
-    l = l.lastChild while l.childNodes.length and l.lastChild.nodeType is 1
-    l.parentNode.appendChild e
-
-  ###
   # Listen to form event.
   # @callback failureCallback
   # @param {object} form - the form object
