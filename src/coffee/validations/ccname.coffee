@@ -32,10 +32,10 @@ class OmiseCcNameValidation
     value = value.replace /\s/g, ''
 
     # Don't be an empty
-    return @_message.get('emptyString') if @_validates.isEmpty value
+    return @_message.get('nameEmpty') if @_validates.isEmpty value
 
     # Allow: only alphabet character [A-Za-z]
-    return @_message.get('alphabetOnly') unless @_validates.isAlphabet value
+    return @_message.get('nameAlphabet') unless @_validates.isAlphabet value
 
     return true
 

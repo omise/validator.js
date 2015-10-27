@@ -4,9 +4,16 @@ class OmiseValidationMessage
       emptyString   : 'The value must not be an empty'
       alphabetOnly  : 'The value must be a alphabet character only'
       digitOnly     : 'The value must be a digit character only'
-      expiryFormat  : 'The value\'s format is wrong'
-      cardFormat    : 'The value\'s format of card is wrong'
-      cardNotMatch  : 'Enter a valid card number'
+
+      nameEmpty     : 'Name on card cannot be empty'
+      nameAlphabet  : 'Name on card must only contains letters'
+
+      cardEmpty     : 'Card number cannot be empty'
+      cardFormat    : 'Card number is invalid'
+      cardNotMatch  : 'Card number is invalid'
+
+      expiryEmpty   : 'Expiration cannot be empty'
+      expiryFormat  : 'Expiration is invalid'
 
   ###
   # Get a response message

@@ -10,21 +10,21 @@ class OmiseCcNumberValidation
         pattern   : /^5[1-5]/
         format    : '#### #### #### ####'
         length    : 16
-        icon      : '../../assets/images/icon-mastercard.png'
+        icon      : 'http://cdn.omise.co/validator/images/icon-mastercard.png'
         validate  : /(?:^|\s)(\d{4})$/
       ,
         type      : 'visa'
         pattern   : /^4/
         format    : '#### #### #### ####'
         length    : 16
-        icon      : '../../assets/images/icon-visa.png'
+        icon      : 'http://cdn.omise.co/validator/images/icon-visa.png'
         validate  : /(?:^|\s)(\d{4})$/
       ,
         type      : 'visa_old'
         pattern   : /^4/
         format    : '#### ### ### ###'
         length    : 13
-        icon      : '../../assets/images/icon-visa.png'
+        icon      : 'http://cdn.omise.co/validator/images/icon-visa.png'
     ]
 
     @cardUnknow =
@@ -58,6 +58,12 @@ class OmiseCcNumberValidation
 
       @_onblurEvent e, field, response
 
+    field.selector.onpaste = (e) =>
+      e       = e || window.event
+      e.which = e.which || e.keyCode || 0
+
+      @_onpasteEvent e, field, response
+
   ###
   # Validate an input
   # @param {string} value - a value that coming from typing
@@ -66,7 +72,7 @@ class OmiseCcNumberValidation
   ###
   validate: (value, fieldValue = "") ->
     # Don't be an empty
-    return @_message.get('emptyString') if @_validates.isEmpty value
+    return @_message.get('cardEmpty') if @_validates.isEmpty value
 
     c = @_validateCardPattern value
     return @_message.get('cardNotMatch') unless c?
@@ -142,23 +148,27 @@ class OmiseCcNumberValidation
 
   ###
   # Show a valid credit card logo
-  # @param {object} card - one of cardAcceptance object
+  # @param {object} elem - an target element
+  # @param {object} cardTarget - one of cardAcceptance object
   # @return {void}
   ###
-  _show: (card) ->
-    @_hide()
-    className = @cardIcons[card.type].className
-    if className.search('valid') < 0
-      @cardIcons[card.type].className = className + " valid"
+  _show: (elem, cardTarget) ->
+    @_hide elem
+
+    target = elem.parentNode.getElementsByClassName "omise_ccnumber_#{cardTarget.type}"
+    if target.length isnt 0
+      target = target[0]
+      target.className = target.className + " valid"
 
   ###
-  # Hide all of credit card logos
+  # Hide all of credit card icons
+  # @param {object} elem - an target element
   # @return {void}
   ###
-  _hide: ->
-    for key, card of @cardIcons
-      card.className  = card.className.replace /valid/gi, ""
-      @cardIcons[key] = card
+  _hide: (elem) ->
+    cards = elem.parentNode.getElementsByClassName "omise_ccnumber_card"
+    for card in cards
+      card.className = card.className.replace /valid/gi, ""
 
   ###
   # Capture and handle on-key-down event
@@ -177,7 +187,7 @@ class OmiseCcNumberValidation
         # Allow: delete, tab, escape, home, end,
         # and left-right arrow
         when null, 0, 9, 27, 37, 39 then return true
-        
+
         # Detect: backspace
         when 8
           e.preventDefault()
@@ -191,6 +201,11 @@ class OmiseCcNumberValidation
               pos = @_helper.delValFromCaretPosition e.target
 
             card  = @_validateCardPattern(e.target.value) || @cardUnknow
+
+            if card.type is 'unknow'
+              @_hide e.target
+            else
+              @_show e.target, card
           
             # Set formatted value
             e.target.value = @_reFormat e.target.value, card
@@ -211,6 +226,13 @@ class OmiseCcNumberValidation
           card        = @_validateCardPattern("#{value}#{input}") || @cardUnknow
           cardLength  = card.length
           inputLength = (value.replace(/\D/g, '') + input).length
+
+          console.log card
+
+          if card.type is 'unknow'
+            @_hide e.target
+          else
+            @_show e.target, card
           
           return false if inputLength > cardLength
 
@@ -248,6 +270,57 @@ class OmiseCcNumberValidation
 
     if @_helper.dirty(e.target) is "true"
       response.result e, field, (@validate(e.target.value))
+
+  ###
+  # Capture and handle on-paste event
+  # @param {object} e - an key event object
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
+  # @param {object} response - the response handler class
+  # @return {boolean}
+  ###
+  _onpasteEvent: (e, field, response) =>
+    input = e.clipboardData.getData 'text/plain'
+    value = e.target.value
+
+    input = (input + '').replace(/\s/g, '')
+
+    # Allow: only digit character [0-9]
+    return false if !@_validates.isDigit input
+
+    card        = @_validateCardPattern("#{value}#{input}") || @cardUnknow
+    cardLength  = card.length
+
+    inputLength = (value.replace(/\D/g, '') + input).length
+
+    # Allow: character limit
+    return false if inputLength > cardLength
+
+    if card.type is 'unknow'
+      @_hide e.target
+    else
+      @_show e.target, card
+
+    # Format the input value
+    caret = e.target.selectionStart
+    value = @_format value, input, card, caret
+
+    # Calculate new caret position
+    caret = caret + (value.length - e.target.value.length)
+
+    # Assign formatted value
+    e.target.value  = value
+
+    # Set new caret position
+    @_helper.setCaretPosition e.target, caret
+
+    if @_helper.dirty(e.target) is "true"
+      response.result e, field, (@validate(e.target.value))
+
+    e.preventDefault()
 
 # Export class
 window.OmiseValidation.ccnumber = OmiseCcNumberValidation

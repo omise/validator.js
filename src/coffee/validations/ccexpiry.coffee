@@ -42,7 +42,7 @@ class OmiseCcExpiryValidation
   ###
   validate: (value, fieldValue = null) ->
     # Don't be an empty
-    return @_message.get('emptyString') if @_validates.isEmpty value
+    return @_message.get('expiryEmpty') if @_validates.isEmpty value
 
     # Allow: only digit character [0-9]
     return @_message.get('expiryFormat') unless @_validates.isExpiry value
