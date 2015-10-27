@@ -21,6 +21,12 @@ class OmiseCcNameValidation
 
       @_onkeydownEvent e, field, response
 
+    field.selector.onkeypress = (e) =>
+      e       = e || window.event
+      e.which = e.which || e.keyCode || 0
+
+      @_onkeypressEvent e, field, response
+
   ###
   # Validate an input
   # @param {string} value - a value that retrieve from typing
@@ -67,15 +73,26 @@ class OmiseCcNameValidation
           # Validate the field when it's dirty only
           if (@_helper.dirty(e.target)) is "true"
             response.result e, field, (@validate(e.target.value))
-        
-        else
-          input = String.fromCharCode e.which
-          value = e.target.value
 
-          # Make the field dirty when type a character
-          @_helper.beDirty e.target
+  ###
+  # Capture and handle on-key-down event
+  # @param {object} e - an key event object
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
+  # @param {object} response - the response handler class
+  # @return {boolean}
+  ###
+  _onkeypressEvent: (e, field, response) =>
+    input = String.fromCharCode e.which
+    value = e.target.value
 
-          response.result e, field, (@validate(value + input))
+    # Make the field dirty when type a character
+    @_helper.beDirty e.target
+
+    response.result e, field, (@validate(value + input))
 
 # Export class
 window.OmiseValidation.ccname = OmiseCcNameValidation
