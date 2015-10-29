@@ -71,6 +71,8 @@ class OmiseCcNumberValidation
   # @return {string|boolean}
   ###
   validate: (value, fieldValue = "") ->
+    value = (value + '').replace(/\D/g, '')
+
     # Don't be an empty
     return @_message.get('cardEmpty') if @_validates.isEmpty value
 
@@ -155,7 +157,8 @@ class OmiseCcNumberValidation
   _show: (elem, cardTarget) ->
     @_hide elem
 
-    target = elem.parentNode.getElementsByClassName "omise_ccnumber_#{cardTarget.type}"
+    className = "omise_ccnumber_#{cardTarget.type}"
+    target = elem.parentNode.getElementsByClassName className
     if target.length isnt 0
       target = target[0]
       target.className = target.className + " valid"
@@ -213,6 +216,9 @@ class OmiseCcNumberValidation
             # Set new caret position
             @_helper.setCaretPosition e.target, pos
 
+          if @_helper.dirty(e.target) is "true"
+            response.result e, field, (@validate(e.target.value))
+
         else
           # Validate the field when it's dirty only
           input = String.fromCharCode e.which
@@ -226,8 +232,6 @@ class OmiseCcNumberValidation
           card        = @_validateCardPattern("#{value}#{input}") || @cardUnknow
           cardLength  = card.length
           inputLength = (value.replace(/\D/g, '') + input).length
-
-          console.log card
 
           if card.type is 'unknow'
             @_hide e.target
