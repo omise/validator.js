@@ -164,8 +164,10 @@ class OmiseValidator
           field.validates = @rules[field.validates[0]] or false
           return false unless field.validates isnt false
 
+          # Transform a target field to be a validate field
           @_initValidateField field.selector, field.target
 
+          # Observe/Listen to target field
           @_observeField field, field.validates
 
         if result is false
@@ -173,7 +175,7 @@ class OmiseValidator
         else
           @form.fields[i] = field
 
-      # Listen submit event
+      # Listen to submit event
       @_observeForm @form, fc, sc
       return
 
@@ -202,15 +204,24 @@ class OmiseValidator
     cnt = document.getElementsByClassName "#{prefix}_wrapper"
     cnt = if cnt.length > 0 then cnt.length else ""
 
-    wrapper           = document.createElement 'span'
-    wrapper.id        = "#{prefix}#{cnt}_wrapper"
-    wrapper.className = "omise_validation_wrapper"
+    # Create wrapper element
+    wrapper                     = document.createElement 'span'
+    wrapper.id                  = "#{prefix}#{cnt}_wrapper"
+    wrapper.className           = "omise_validation_wrapper"
 
     elem.parentNode.replaceChild wrapper, elem
     wrapper.appendChild elem
 
-    elem.dataset.wrapper  = "#{prefix}#{cnt}_wrapper"
-    elem.dataset.dirty    = false
+    # Create validate message element
+    message                     = document.createElement 'span'
+    message.id                  = "#{prefix}#{cnt}_validation_msg"
+    message.className           = "omise_validation_msg"
+    wrapper.appendChild message
+
+    # Set data attributes
+    elem.dataset.dirty          = false
+    elem.dataset.wrapper        = wrapper.id
+    elem.dataset.validationMsg  = message.id
 
   ###
   # Listen to form event.
@@ -237,17 +248,17 @@ class OmiseValidator
     form.form.addEventListener 'submit', (e) =>
       e.preventDefault()
 
-      _err = false
-      for field, i in form.fields
+      invalid = false
+      for field in form.fields
+        # Make it dirty
         field.selector.dataset.dirty = true
 
-        result = field.validates.validate field.selector.value
-
-        _err = true if result isnt true
+        if (result = field.validates.validate(field.selector.value)) isnt true
+          invalid = true
 
         @response.result e, field, result
 
-      if _err is false
+      if invalid is false
         if typeof sc is 'function'
           sc form
         else
@@ -268,8 +279,6 @@ class OmiseValidator
   # @return {void}
   ###
   _observeField: (field, validation) ->
-    @response.createElementForPushMsg field.selector
-
     validation.init field, @response
 
 # Export class

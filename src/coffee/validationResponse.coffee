@@ -1,25 +1,6 @@
 class OmiseValidationResponse
   ###
-  # Initiate an element for push a validation message
-  # below an element target
-  # @param {object} elem - an element target
-  # @return {void}
-  ###
-  createElementForPushMsg: (elem) ->
-    _wrapper        = document.getElementById elem.dataset.wrapper
-
-    _idName         = elem.dataset.wrapper.replace(/_wrapper$/g, '')
-    _idName         = "#{_idName}_validation_msg"
-
-    _msg            = document.createElement 'span'
-    _msg.id         = _idName
-    _msg.className  = "omise_validation_msg"
-    
-    _wrapper.appendChild _msg
-    elem.dataset.validationMsg = _idName
-
-  ###
-  # Push a message to a validation message field
+  # Push a message to a field target
   # @param {object} elem - an target element
   # @param {string} msg - a message that want to publish
   # @return {void}
@@ -28,7 +9,7 @@ class OmiseValidationResponse
     _t = elem.dataset.validationMsg
     _t = document.getElementById _t
     
-    _t?.innerHTML  = msg
+    _t?.innerHTML = msg
 
   ###
   # Take an action when field's validation is invalid

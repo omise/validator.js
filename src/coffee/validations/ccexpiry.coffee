@@ -34,6 +34,12 @@ class OmiseCcExpiryValidation
 
       @_onblurEvent e, field, response
 
+    field.selector.onpaste = (e) =>
+      e       = e || window.event
+      e.which = e.which || e.keyCode || 0
+
+      @_onpasteEvent e, field, response
+
   ###
   # Validate an input
   # @param {string} value - a value that retrieve from typing
@@ -184,6 +190,36 @@ class OmiseCcExpiryValidation
 
     if @_helper.dirty(e.target) is "true"
       response.result e, field, (@validate(e.target.value))
+
+  ###
+  # Capture and handle on-paste event
+  # @param {object} e - an key event object
+  # @param {object} field - the field that be retrieved from @form variable
+  # @param {string} field.target - a field name (might be a id or class name)
+  # @param {object} field.validates - a validation class
+  # @param {object} field.selector - a selector of a target field
+  # @param {object} field.callback - a callback function
+  # @param {object} response - the response handler class
+  # @return {boolean}
+  ###
+  _onpasteEvent: (e, field, response) =>
+    input = e.clipboardData.getData 'text/plain'
+    value = e.target.value
+
+    # Allow: only digit character
+    return false if @_preventCharacter(value + input) is false
+
+    # Format the input value
+    caret           = e.target.selectionStart
+    e.target.value  = @_format value, input, caret
+
+    if caret > 4
+      @_helper.setCaretPosition e.target, caret + 1
+
+    if @_helper.dirty(e.target) is "true"
+      response.result e, field, (@validate(e.target.value))
+
+    e.preventDefault()
 
 # Export class
 window.OmiseValidation.ccexpiry = OmiseCcExpiryValidation
