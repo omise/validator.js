@@ -305,25 +305,42 @@ class OmiseCcNumberValidation
     return false unless @_preventInput input, value, e
 
     # Format the input value
-    c = e.target.selectionStart
-    v = @_helper.insertValAfterCaretPos value, input, c
-    v = (v + '').replace(/\D/g, '')
+    range = @_helper.getCaretRange e.target
+    if (range.start is range.end)
+      c = e.target.selectionStart
+      v = @_helper.insertValAfterCaretPos value, input, c
+      v = (v + '').replace(/\D/g, '')
+    else
+      c = e.target.selectionStart
 
-    card = @_validateCardPattern(v) || @cardUnknow
+      if (range.start is 0 and range.end is value.length)
+        c = range.start
+        v = input
+        value = ''
+      else
+        p1 = e.target.value.slice(0, range.start)
+        p2 = e.target.value.slice(range.end)
+        v = p1 + input + p2
+        value = p1 + p2
+      
+    v     = (v + '').replace(/\D/g, '')
+    card  = @_validateCardPattern(v) || @cardUnknow
 
     if card.type is 'unknow'
       @_hide e.target
     else
       @_show e.target, card
     
+    # Allow: if field have string in caret range
+    # if (range = @_helper.caretRange(e.target)) is ""
     return false if v.length > card.length
 
     # Format the input value
     v = @_reFormatCardPattern v, card
-    c += input.length
-    if input.length > 4
-      c += (input.length % 4)
-    else if input.length is 4
+    
+    newC = (Math.abs(v.length - value.length))
+    c = c + (Math.abs(v.length - value.length))
+    if / $/.test value
       c += 1
 
     # Assign formatted value
@@ -337,31 +354,6 @@ class OmiseCcNumberValidation
     @_helper.beDirty e.target
 
     response.result e, field, (@validate(value + input))
-
-
-
-    # # Format the input value
-    # caret = e.target.selectionStart
-    # value = @_format value, input, card, caret
-
-    # # Calculate new caret position
-    # caret = caret + (value.length - e.target.value.length)
-
-    # # Assign formatted value
-    # e.target.value  = value
-
-    # Set new caret position
-    # @_helper.setCaretPosition e.target, caret
-
-
-
-
-    # Make the field dirty when type a character
-    # @_helper.beDirty e.target
-
-    # response.result e, field, (@validate(value + input))
-
-    # e.preventDefault()
 
   ###
   # Capture and handle on-blur event

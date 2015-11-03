@@ -45,7 +45,6 @@ class OmiseCcExpiryYearValidation
   # @return {string|boolean}
   ###
   validate: (value, fieldValue = null) ->
-    console.log value
     # Don't be an empty
     return @_message.get('expiryEmpty') if @_validates.isEmpty value
 

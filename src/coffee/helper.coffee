@@ -74,6 +74,13 @@ class Helper
     return char
 
   caretRange: (elem) ->
+    range = @getCaretRange elem
+    start = range.start
+    end   = range.end
+
+    return elem.value.substring start, end
+
+  getCaretRange: (elem) ->
     if elem.createTextRange?
       # Get range start
       range = document.selection.createRange().duplicate()
@@ -92,6 +99,6 @@ class Helper
       start = elem.selectionStart
       end   = elem.selectionEnd
 
-    return elem.value.substring start, end
+    return {start: start, end: end}
 
 window.OmiseValidation.helper = Helper
