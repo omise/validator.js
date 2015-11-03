@@ -18,6 +18,20 @@ class Helper
 
     return pos
 
+  insertValAfterCaretPos: (value, input, caret) ->
+    if caret != value.length
+      _value = value.split ''
+      _value.splice caret, 0, input
+      _value = _value.join ''
+
+      _value = _value.match /\d/g
+      _value = _value.join ''
+
+    else
+      _value = "#{value}#{input}"
+
+    return _value
+
   ###
   # Get caret position
   # @param {object} elem - a selector object of an element
@@ -34,6 +48,50 @@ class Helper
     elem.dataset.dirty = true
 
   dirty: (elem) ->
-    return elem.dataset.dirty
+    return if elem.dataset.dirty is "true" then true else false
+
+  isMetaKey: (e) ->
+    if e.metaKey is false and
+      e.ctrlKey is false and
+      e.altKey is false and
+      e.code isnt "ShiftLeft" and
+      e.code isnt "ShiftRight" and
+      e.keyIdentifier isnt "Shift"
+        return false
+
+    return true
+
+  inputChar: (e) ->
+    # Safari, Chrome onKeyDown behaviour
+    if e.keyIdentifier?
+      char = parseInt e.keyIdentifier.substr(2), 16
+      char = String.fromCharCode char
+
+    # Firefox onKeyDown behaviour
+    else
+      char = e.key
+
+    return char
+
+  caretRange: (elem) ->
+    if elem.createTextRange?
+      # Get range start
+      range = document.selection.createRange().duplicate()
+      range.moveEnd('character', elem.value.length)
+      
+      if (range.text == '')
+        start = elem.value.length
+      else
+        start = elem.value.lastIndexOf start.text
+
+      # Get range end
+      range.moveStart('character', -elem.value.length)
+      end = range.text.length
+
+    else
+      start = elem.selectionStart
+      end   = elem.selectionEnd
+
+    return elem.value.substring start, end
 
 window.OmiseValidation.helper = Helper
