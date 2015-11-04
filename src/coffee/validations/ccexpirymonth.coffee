@@ -97,7 +97,7 @@ class OmiseCcExpiryMonthValidation
     if (@_helper.isMetaKey(e)) is false
       # Allow: caps-lock, delete, tab, escape, home, end,
       # left-right, up-down arrows
-      return true if e.which in [null, 0, 9, 20, 27, 37, 38, 39, 40]
+      return true if e.which in [null, 0, 9, 13, 20, 27, 37, 38, 39, 40]
 
       if e.which isnt 8
         input = @_helper.inputChar e
