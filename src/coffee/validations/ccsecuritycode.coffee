@@ -1,43 +1,14 @@
 class OmiseCcSecurityCodeValidation
   constructor: ->
-    @_validates = new window.OmiseValidation.validates
-    @_message   = new window.OmiseValidation.messages
-    @_helper    = new window.OmiseValidation.helper
-
     # Limitation of an input length
     @strMin = 3
     @strLimit = 4
 
-  ###
-  # Initiate the validation event
-  # @param {object} field - the field that be retrieved from @form variable
-  # @param {string} field.target - a field name (might be a id or class name)
-  # @param {object} field.validates - a validation class
-  # @param {object} field.selector - a selector of a target field
-  # @param {object} field.callback - a callback function
-  # @param {object} response - the response handler class
-  # @return {void}
-  ###
-  init: (field, response) =>
-    field.selector.onkeydown = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onkeydownEvent e, field, response
-
-    field.selector.onkeyup = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onkeyupEvent e, field, response
-
-    field.selector.onpaste = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onpasteEvent e, field, response
-
-    field.selector.onblur = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onblurEvent e, field, response
+  init: (field, dep) ->
+    @validates = dep._validates
+    @helper    = dep._helper
+    @message   = dep._message
+    @response  = dep._response
 
   ###
   # Validate an input
@@ -47,16 +18,16 @@ class OmiseCcSecurityCodeValidation
   ###
   validate: (value, fieldValue = null) ->
     # Don't be an empty
-    return @_message.get('emptyString') if @_validates.isEmpty value
+    return @message.get('emptyString') if @validates.isEmpty value
 
     # Allow: only digit character [0-9]
-    return @_message.get('digitOnly') unless @_validates.isDigit value
+    return @message.get('digitOnly') unless @validates.isDigit value
 
     # Allow: only digit character [0-9]
-    return @_message.get('securitycodeMin') if value.length < @strMin
+    return @message.get('securitycodeMin') if value.length < @strMin
 
     # Allow: only digit character [0-9]
-    return @_message.get('securitycodeMax') if value.length > @strLimit
+    return @message.get('securitycodeMax') if value.length > @strLimit
 
     return true
 
@@ -69,17 +40,17 @@ class OmiseCcSecurityCodeValidation
   ###
   _preventInput: (input, value, e) ->
     # Allow: only digit character [0-9]
-    return false unless @_validates.isDigit input
+    return false unless @validates.isDigit input
 
     caret = e.target.selectionStart
-    if (range = @_helper.caretRange(e.target)) isnt ""
+    if (range = @helper.caretRange(e.target)) isnt ""
 
       p1    = value.slice(0, caret)
       p2    = value.slice(caret + range.length)
 
       value = p1 + input + p2
     else
-      value = @_helper.insertValAfterCaretPos value, input, caret
+      value = @helper.insertValAfterCaretPos value, input, caret
 
     # Length limit
     return false if value.length > @strLimit
@@ -97,14 +68,14 @@ class OmiseCcSecurityCodeValidation
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeydownEvent: (e, field, response) =>
-    if (@_helper.isMetaKey(e)) is false
+  onkeydownEvent: (e, field) =>
+    if (@helper.isMetaKey(e)) is false
       # Allow: caps-lock, delete, tab, escape, home, end,
       # left-right, up-down arrows
       return true if e.which in [null, 0, 9, 13, 20, 27, 37, 38, 39, 40]
 
       if e.which isnt 8
-        input = @_helper.inputChar e
+        input = @helper.inputChar e
         value = e.target.value
 
         return false unless @_preventInput input, value, e
@@ -120,9 +91,9 @@ class OmiseCcSecurityCodeValidation
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeyupEvent: (e, field, response) =>
-    if @_helper.dirty e.target
-      response.result e, field, (@validate(e.target.value))
+  onkeyupEvent: (e, field) =>
+    if @helper.dirty e.target
+      @response.result e, field, (@validate(e.target.value))
 
   ###
   # Capture and handle on-paste event
@@ -135,16 +106,14 @@ class OmiseCcSecurityCodeValidation
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onpasteEvent: (e, field, response) =>
+  onpasteEvent: (e, field) =>
     input = e.clipboardData.getData 'text/plain'
     value = e.target.value
 
     return false unless (value = @_preventInput(input, value, e))
 
     # Make the field dirty when type a character
-    @_helper.beDirty e.target
-
-    response.result e, field, (@validate(value))
+    @helper.beDirty e.target
 
   ###
   # Capture and handle on-blur event
@@ -157,13 +126,13 @@ class OmiseCcSecurityCodeValidation
   # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onblurEvent: (e, field, response) =>
+  onblurEvent: (e, field) =>
     # Make the field dirty if these field's value is not empty
     if e.target.value.length > 0
-      @_helper.beDirty e.target
+      @helper.beDirty e.target
 
-    if @_helper.dirty e.target
-      response.result e, field, (@validate(e.target.value))
+    if @helper.dirty e.target
+      @response.result e, field, (@validate(e.target.value))
 
 # Export class
 window.OmiseValidation.ccsecuritycode = OmiseCcSecurityCodeValidation

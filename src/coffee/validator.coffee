@@ -1,6 +1,6 @@
 class OmiseValidator
   constructor: ->
-    @response = new window.OmiseValidation.response
+    @core = new window.OmiseValidation.validation
 
     @rules =
       ccName          : new window.OmiseValidation.ccname
@@ -168,7 +168,7 @@ class OmiseValidator
           @_initValidateField field.selector, field.target
 
           # Observe/Listen to target field
-          @_observeField field, field.validates
+          @_observeField field
 
         if result is false
           @form.fields.splice i, 1
@@ -224,7 +224,7 @@ class OmiseValidator
     elem.dataset.validationMsg  = message.id
 
   ###
-  # Listen to form event.
+  # Listen to form event
   # @callback failureCallback
   # @param {object} form - the form object
   # @param {object} form.form - a selector of the form target element
@@ -245,28 +245,7 @@ class OmiseValidator
   # @return {void}
   ###
   _observeForm: (form, fc = null, sc = null) ->
-    form.form.addEventListener 'submit', (e) =>
-      e.preventDefault()
-
-      invalid = false
-      for field in form.fields
-        # Make it dirty
-        field.selector.dataset.dirty = true
-
-        if (result = field.validates.validate(field.selector.value)) isnt true
-          invalid = true
-
-        @response.result e, field, result
-
-      if invalid is false
-        if typeof sc is 'function'
-          sc form
-        else
-          form.form.submit()
-
-      else if typeof fc is 'function'
-        fc form
-    , false
+    @core.observeForm form, fc, sc
 
   ###
   # Listen to field event
@@ -275,11 +254,10 @@ class OmiseValidator
   # @param {object} field.validates - a validation class
   # @param {object} field.selector - a selector of a target field
   # @param {object} field.callback - a callback function
-  # @param {object} validation - the validation class object
   # @return {void}
   ###
-  _observeField: (field, validation) ->
-    validation.init field, @response
+  _observeField: (field) ->
+    @core.observeField field
 
 # Export class
 window.OmiseValidation  = {}

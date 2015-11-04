@@ -1,4 +1,4 @@
-class Validates
+class OmiseValidationRule
   isEmpty: (input) ->
     return input.length <= 0
 
@@ -27,4 +27,4 @@ class Validates
       else return false
 
 # Export class
-window.OmiseValidation.validates = Validates
+window.OmiseValidation.rules = OmiseValidationRule

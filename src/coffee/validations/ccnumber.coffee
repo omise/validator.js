@@ -1,36 +1,26 @@
 class OmiseCcNumberValidation
   constructor: ->
-    @_validates = new window.OmiseValidation.validates
-    @_message   = new window.OmiseValidation.messages
-    @_helper    = new window.OmiseValidation.helper
-
     # List of card that be accepted
     @cards = [
         type      : 'mastercard'
         pattern   : /^5[1-5]/
         format    : '#### #### #### ####'
-        length    : 16
+        length    : [16]
         icon      : 'http://cdn.omise.co/validator/images/icon-mastercard.png'
         validate  : /(?:^|\s)(\d{4})$/
       ,
         type      : 'visa'
         pattern   : /^4/
         format    : '#### #### #### ####'
-        length    : 16
+        length    : [13, 16]
         icon      : 'http://cdn.omise.co/validator/images/icon-visa.png'
         validate  : /(?:^|\s)(\d{4})$/
-      ,
-        type      : 'visa_old'
-        pattern   : /^4/
-        format    : '#### ### ### ###'
-        length    : 13
-        icon      : 'http://cdn.omise.co/validator/images/icon-visa.png'
     ]
 
     @cardUnknow =
       type        : 'unknow'
       format      : '#### #### #### ####'
-      length      : 16
+      length      : [16]
 
   ###
   # Initiate the validation event
@@ -39,33 +29,17 @@ class OmiseCcNumberValidation
   # @param {object} field.validates - a validation class
   # @param {object} field.selector - a selector of a target field
   # @param {object} field.callback - a callback function
-  # @param {object} response - the response handler class
   # @return {void}
   ###
-  init: (field, response) =>
+  init: (field, dep) =>
+    @validates = dep._validates
+    @helper    = dep._helper
+    @message   = dep._message
+    @response  = dep._response
+
     # Initiate credit card icon
     @_appendCcIcon field.selector
-
-    field.selector.onkeydown = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onkeydownEvent e, field, response
-
-    field.selector.onkeyup = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onkeyupEvent e, field, response
-
-    field.selector.onblur = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onblurEvent e, field, response
-
-    field.selector.onpaste = (e) =>
-      e       = e || window.event
-      e.which = e.which || e.keyCode || 0
-      @_onpasteEvent e, field, response
-
+    
   ###
   # Create a credit card icon's element
   # @param {object} elem - a selector object of an element
@@ -94,7 +68,7 @@ class OmiseCcNumberValidation
     target = elem.parentNode.getElementsByClassName className
     if target.length isnt 0
       target = target[0]
-      target.className = target.className + " valid"
+      target.className = target.className + " match"
 
   ###
   # Hide all of credit card icons
@@ -104,7 +78,7 @@ class OmiseCcNumberValidation
   _hide: (elem) ->
     cards = elem.parentNode.getElementsByClassName "omise_ccnumber_card"
     for card in cards
-      card.className = card.className.replace /valid/gi, ""
+      card.className = card.className.replace /match/gi, ""
 
   ###
   # Validate input card pattern
@@ -152,12 +126,12 @@ class OmiseCcNumberValidation
     value = (value + '').replace(/\D/g, '')
 
     # Don't be an empty
-    return @_message.get('cardEmpty') if @_validates.isEmpty value
+    return @message.get('cardEmpty') if @validates.isEmpty value
 
     c = @_validateCardPattern value
-    return @_message.get('cardNotMatch') unless c?
+    return @message.get('cardNotMatch') unless c?
 
-    return @_message.get('cardFormat') unless @_validates.isCard c.type, value
+    return @message.get('cardFormat') unless @validates.isCard c.type, value
 
     return true
 
@@ -172,7 +146,7 @@ class OmiseCcNumberValidation
     input = (input + '').replace(/\s/g, '')
 
     # Allow: only digit character [0-9]
-    return false unless @_validates.isDigit input
+    return false unless @validates.isDigit input
 
     return true
 
@@ -184,18 +158,17 @@ class OmiseCcNumberValidation
   # @param {object} field.validates - a validation class
   # @param {object} field.selector - a selector of a target field
   # @param {object} field.callback - a callback function
-  # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeydownEvent: (e, field, response) =>
-    if (@_helper.isMetaKey(e)) is false
+  onkeydownEvent: (e, field) =>
+    if (@helper.isMetaKey(e)) is false
       # Allow: caps-lock, delete, tab, escape, home, end,
       # left-right, up-down arrows
       return true if e.which in [null, 0, 9, 13, 20, 27, 37, 38, 39, 40]
 
       # If press 'backspace'
       if e.which is 8
-        if (range = @_helper.caretRange(e.target)) isnt ""
+        if (range = @helper.caretRange(e.target)) isnt ""
           pos = e.target.selectionStart
 
           p1 = e.target.value.slice(0, pos)
@@ -204,11 +177,11 @@ class OmiseCcNumberValidation
           _value = p1 + p2
           e.target.value = _value
 
-        else if (pos = @_helper.getCaretPosition(e.target)) != 0
+        else if (pos = @helper.getCaretPosition(e.target)) != 0
           if /\s/.test e.target.value[pos-1]
-            pos = @_helper.delValFromCaretPosition e.target, 2
+            pos = @helper.delValFromCaretPosition e.target, 2
           else
-            pos = @_helper.delValFromCaretPosition e.target
+            pos = @helper.delValFromCaretPosition e.target
 
         card  = @_validateCardPattern(e.target.value) || @cardUnknow
         if card.type is 'unknow'
@@ -222,23 +195,23 @@ class OmiseCcNumberValidation
         e.target.value = @_reFormatCardPattern e.target.value, card
 
         # Set new caret position
-        @_helper.setCaretPosition e.target, pos
+        @helper.setCaretPosition e.target, pos
 
       # If press any keys
       else
-        input = @_helper.inputChar e
+        input = @helper.inputChar e
         value = e.target.value
 
         return false unless @_preventInput input, value, e
 
         # Allow: if field have string in caret range
-        if (range = @_helper.caretRange(e.target)) isnt ""
+        if (range = @helper.caretRange(e.target)) isnt ""
           if range.length is value.length
             return true
 
         # Format the input value
         c = e.target.selectionStart
-        v = @_helper.insertValAfterCaretPos value, input, c
+        v = @helper.insertValAfterCaretPos value, input, c
         v = (v + '').replace(/\D/g, '')
 
         card = @_validateCardPattern(v) || @cardUnknow
@@ -248,7 +221,7 @@ class OmiseCcNumberValidation
         else
           @_show e.target, card
         
-        return false if v.length > card.length
+        return false if v.length > card.length[card.length.length-1]
 
         # Format the input value
         v = @_reFormatCardPattern v, card
@@ -266,11 +239,11 @@ class OmiseCcNumberValidation
         else if (v.charAt(c-1)) is ' '
           c += 1
           
-        @_helper.setCaretPosition e.target, c
+        @helper.setCaretPosition e.target, c
 
       # Validate a field if it dirty
-      if @_helper.dirty e.target
-        response.result e, field, (@validate(e.target.value))
+      if @helper.dirty e.target
+        @response.result e, field, (@validate(e.target.value))
 
   ###
   # Capture and handle on-key-up event
@@ -280,12 +253,19 @@ class OmiseCcNumberValidation
   # @param {object} field.validates - a validation class
   # @param {object} field.selector - a selector of a target field
   # @param {object} field.callback - a callback function
-  # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onkeyupEvent: (e, field, response) =>
-    if @_helper.dirty e.target
-      response.result e, field, (@validate(e.target.value))
+  onkeyupEvent: (e, field) =>
+    v     = (e.target.value + '').replace(/\D/g, '')
+    card  = @_validateCardPattern(v) || @cardUnknow
+
+    if card.type is 'unknow'
+      @_hide e.target
+    else
+      @_show e.target, card
+
+    if @helper.dirty e.target
+      @response.result e, field, (@validate(e.target.value))
 
   ###
   # Capture and handle on-paste event
@@ -295,20 +275,19 @@ class OmiseCcNumberValidation
   # @param {object} field.validates - a validation class
   # @param {object} field.selector - a selector of a target field
   # @param {object} field.callback - a callback function
-  # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onpasteEvent: (e, field, response) =>
+  onpasteEvent: (e, field) =>
     input = e.clipboardData.getData 'text/plain'
     value = e.target.value
 
     return false unless @_preventInput input, value, e
 
     # Format the input value
-    range = @_helper.getCaretRange e.target
+    range = @helper.getCaretRange e.target
     if (range.start is range.end)
       c = e.target.selectionStart
-      v = @_helper.insertValAfterCaretPos value, input, c
+      v = @helper.insertValAfterCaretPos value, input, c
       v = (v + '').replace(/\D/g, '')
     else
       c = e.target.selectionStart
@@ -331,14 +310,11 @@ class OmiseCcNumberValidation
     else
       @_show e.target, card
     
-    # Allow: if field have string in caret range
-    # if (range = @_helper.caretRange(e.target)) is ""
-    return false if v.length > card.length
+    return false if v.length > card.length[card.length.length-1]
 
     # Format the input value
     v = @_reFormatCardPattern v, card
     
-    newC = (Math.abs(v.length - value.length))
     c = c + (Math.abs(v.length - value.length))
     if / $/.test value
       c += 1
@@ -348,12 +324,12 @@ class OmiseCcNumberValidation
 
     e.target.value  = v
 
-    @_helper.setCaretPosition e.target, c
+    @helper.setCaretPosition e.target, c
 
     # Make the field dirty when type a character
-    @_helper.beDirty e.target
+    @helper.beDirty e.target
 
-    response.result e, field, (@validate(value + input))
+    @response.result e, field, (@validate(value + input))
 
   ###
   # Capture and handle on-blur event
@@ -363,16 +339,15 @@ class OmiseCcNumberValidation
   # @param {object} field.validates - a validation class
   # @param {object} field.selector - a selector of a target field
   # @param {object} field.callback - a callback function
-  # @param {object} response - the response handler class
   # @return {boolean}
   ###
-  _onblurEvent: (e, field, response) =>
+  onblurEvent: (e, field) =>
     # Make the field dirty if these field's value is not empty
     if e.target.value.length > 0
-      @_helper.beDirty e.target
+      @helper.beDirty e.target
 
-    if @_helper.dirty e.target
-      response.result e, field, (@validate(e.target.value))
+    if @helper.dirty e.target
+      @response.result e, field, (@validate(e.target.value))
 
 # Export class
 window.OmiseValidation.ccnumber = OmiseCcNumberValidation
