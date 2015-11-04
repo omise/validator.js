@@ -3,11 +3,16 @@ module.exports = (grunt) ->
     pkg: grunt.file.readJSON 'package.json'
     
     watch:
+      options:
+        nospawn: true
+
       coffeelint:
         files: [
           'src/coffee/validator.coffee'
           'src/coffee/validationResponse.coffee'
+          'src/coffee/validationRule.coffee'
           'src/coffee/validationMessage.coffee'
+          'src/coffee/validation.coffee'
           'src/coffee/helper.coffee'
           'src/coffee/validations/*.coffee'
         ]
@@ -17,17 +22,25 @@ module.exports = (grunt) ->
         files: [
           'src/coffee/validator.coffee'
           'src/coffee/validationResponse.coffee'
+          'src/coffee/validationRule.coffee'
           'src/coffee/validationMessage.coffee'
+          'src/coffee/validation.coffee'
           'src/coffee/helper.coffee'
           'src/coffee/validations/*.coffee'
         ]
         tasks: ['coffee', 'beep']
+      
+      scripts:
+        files: ['lib/js/validator.js']
+        tasks: ['uglify']
 
     coffeelint:
       app: [
         'src/coffee/validator.coffee'
         'src/coffee/validationResponse.coffee'
+        'src/coffee/validationRule.coffee'
         'src/coffee/validationMessage.coffee'
+        'src/coffee/validation.coffee'
         'src/coffee/helper.coffee'
         'src/coffee/validations/*.coffee'
       ]
@@ -38,7 +51,9 @@ module.exports = (grunt) ->
           'lib/js/validator.js': [
             'src/coffee/validator.coffee'
             'src/coffee/validationResponse.coffee'
+            'src/coffee/validationRule.coffee'
             'src/coffee/validationMessage.coffee'
+            'src/coffee/validation.coffee'
             'src/coffee/helper.coffee'
             'src/coffee/validations/*.coffee'
           ]
