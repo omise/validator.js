@@ -6,7 +6,7 @@ class OmiseValidationRule
     return /^\d+$/.test input
 
   isAlphabet: (input) ->
-    return /^[a-z]+$/gi.test input
+    return /^[a-z\.]+$/gi.test input
 
   isExpiry: (input) ->
     return /^(0[1-9]|1[0-2]) \/ ([0-9]{2}|[0-9]{4})$/.test input

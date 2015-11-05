@@ -46,14 +46,18 @@ class OmiseCcNumberValidation
   # @return {void}
   ###
   _appendCcIcon: (elem) ->
-    parent = elem.parentNode
+    parent      = elem.parentNode
+
+    wrapper     = document.createElement 'span'
+    wrapper.id  = "omise_card_brand_supported"
+    parent.appendChild wrapper
     
     for card, i in @cards
       e           = document.createElement 'img'
       e.src       = card.icon
       e.className = "omise_ccnumber_card omise_ccnumber_#{card.type}"
     
-      parent.appendChild e
+      wrapper.appendChild e
 
   ###
   # Show a valid credit card logo
@@ -78,7 +82,7 @@ class OmiseCcNumberValidation
   _hide: (elem) ->
     cards = elem.parentNode.getElementsByClassName "omise_ccnumber_card"
     for card in cards
-      card.className = card.className.replace /match/gi, ""
+      card.className = card.className.replace /\ match/gi, ""
 
   ###
   # Validate input card pattern
