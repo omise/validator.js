@@ -127,6 +127,24 @@ class OmiseValidator
     @validates field, 'ccSecurityCode', callback
 
   ###
+  # Validate fields in case you need to run the validate method
+  # through your event listener
+  # @return {boolean}
+  ###
+  validate: () ->
+    valid = true
+    for field in @form.fields
+      # Make it dirty
+      field.selector.dataset.dirty = true
+
+      if (result = field.validates.validate(field.selector.value)) isnt true
+        valid = false
+
+      @core.response.result null, field, result
+
+    return valid
+
+  ###
   # Attach all of a validation to a selector
   # @callback failureCallback
   # @param {object} form - the form object
