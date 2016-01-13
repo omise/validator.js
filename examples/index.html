@@ -1,68 +1,61 @@
 <!DOCTYPE>
 <html>
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css" href="assets/styles/omise-validation.css">
+  <meta charset="utf-8">
+  <title>Example #01: sample code</title>
 </head>
 <body>
-    <div class="wrapper">
-        <!-- Form 1 -->
-        <h1 class="mg-t30">Validation #1</h1>
-        <form id="omise_form">
-            <input placeholder="Full name"      type="text" name="omise_card_name"           id="omise_card_name">
-            <input placeholder="Card number"    type="text" name="omise_card_number"         id="omise_card_number">
-            <input placeholder="MM / YYYY"      type="text" name="omise_card_expiration"     id="omise_card_expiration">
-            <input placeholder="CVC"            type="text" name="omise_card_security"       id="omise_card_security">
+  <div class="Wrapper">
+    <h1 class="MarginTop30">Validator.js example #01</h1>
+    <form class="CheckoutForm">
+      <input type="text" name="CardName" class="CardName" placeholder="Full name">
+      <input type="text" name="CardNumber" class="CardNumber" placeholder="Card number">
+      <input type="text" name="CardExpiry" class="CardExpiry" placeholder="MM / YYYY">
+      <input type="text" name="CardSecurityCode" class="CardSecurityCode" placeholder="CVC">
 
-            <button type="submit">Checkout</button>
-        </form>
+      <button type="submit">Checkout</button>
+    </form>
+  </div>
 
-        <!-- Form 2, separate expiry month/year to 2 fields -->
-        <h1 class="mg-t30">Validation #2</h1>
-        <form class="my_custom_form">
-            <input placeholder="Full name"      type="text" name="my_card_name"              class="my_card_name">
-            <input placeholder="Card number"    type="text" name="my_card_number"            class="my_card_number">
-            <input placeholder="MM"             type="text" name="my_card_expiration_month"  class="my_card_expiration_month">
-            <input placeholder="YYYY"           type="text" name="my_card_expiration_year"   class="my_card_expiration_year">
-            <input placeholder="CVC"            type="text" name="my_card_security"          class="my_card_security">
+  <div id="more" class="Wrapper">
+    See more examples.
+    <ul>
+      <li><a href="./index.html">#01 Sample code</a></li>
+      <li><a href="./verbose-methods.html">#02 Verbose methods</a></li>
+      <li><a href="./handle-form-submit.html">#03 Handle form submit</a></li>
+      <li><a href="./separate-year-month-fields.html">#03 Separate year and month fields</a></li>
+    </ul>
+  </div>
+  <script src="../lib/js/validator.min.js"></script>
+  <script>
+    var omise = new OmiseValidator;
 
-            <button type="submit">Checkout</button>
-        </form>
-    </div>
+    omise.validates('.CardName', "ccName");
+    omise.validates('.CardNumber', "ccNumber");
+    omise.validates('.CardExpiry', "ccExpiry");
+    omise.validates('.CardSecurityCode', "ccSecurityCode");
+    omise.attachForm('.CheckoutForm');
+  </script>
 
-    <script src="lib/js/validator.min.js"></script>
-    <script>
-        var omise1, omise2;
+  <style>
+    body { font-family: "Lato","Helvetica","Arial",sans-serif; margin: 0; padding: 0; }
+    h1 { color: #444; font-size: 1.4em; }
+    form { position: relative; margin-top: 20px;  border-radius: 3px; border: 1px solid #eee; padding: 16px; display: block; background-color: #f5f5f5; }
+    input { width: 100%; padding: 8px; border: 1px solid #eaeaea; border-radius: 2px; display: block; margin-bottom: 5px; margin-top: 12px; height: 38px;}
+    button { width: 30%; padding: 10px; background-color: #60C0E1; color: #fff; border: 0; cursor: pointer; margin-left: 70%; margin-top: 10px; }
+    button:hover { background-color: #42A5C8; }
 
-        omise1 = new OmiseValidator;
+    .Wrapper { width: 400px; margin: auto; }
+    .MarginTop30 { margin-top: 30px; }
 
-        omise1.validates('omise_card_name', 'ccName');
-        omise1.validates('omise_card_number', 'ccNumber');
-        omise1.validates('omise_card_expiration', 'ccExpiry');
-        omise1.validates('omise_card_security', 'ccSecurityCode');
-        omise1.attachForm('omise_form');
+    #omise_card_brand_supported { position: absolute; bottom: 22px; right: 33%; }
+    #omise_card_brand_supported img { display: inline-block; padding-left: 5px; filter: gray; filter: grayscale(1); -webkit-filter: grayscale(1); }
+    #omise_card_brand_supported img.match { filter: none; -webkit-filter: grayscale(0); }
+    .omise_validation_msg { color: #d1002a; font-size: 75%; }
 
-
-
-        omise2 = new OmiseValidator;
-
-        omise2.validates('.my_card_name', "ccName");
-        // omise2.validates('.my_card_number', "ccNumber");
-        omise2.validates('.my_card_expiration_month', "ccExpiryMonth");
-        omise2.validates('.my_card_expiration_year', "ccExpiryYear");
-        omise2.validates('.my_card_security', "ccSecurityCode");
-        omise2.attachForm('.my_custom_form');
-    </script>
-
-    <style>
-        body            { font-family: Verdana, Geneva, sans-serif; margin: 0; padding: 0; }
-        .wrapper        { width: 320px; margin: auto; }
-        form            { border-radius: 2px; border: 1px solid #eee; padding: 14px 14px 24px; display: block; background-color: #f5f5f5; }
-        input           { width: 100%; padding: 8px; border: 1px solid #eaeaea; }
-        button          { width: 100%; padding: 10px; background-color: #60C0E1; color: #fff; border: 0; cursor: pointer; }
-        button:hover    { background-color: #42A5C8; }
-
-        .mg-t30         { margin-top: 30px; }
-    </style>
+    #more { font-size: 85%; margin-top: 40px; }
+    #more li { margin-bottom: 7px; }
+    #more a { text-decoration: none; color: #60C0E1; }
+  </style>
 </body>
 </html>
