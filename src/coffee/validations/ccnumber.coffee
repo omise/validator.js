@@ -15,6 +15,13 @@ class OmiseCcNumberValidation
         length    : [13, 16]
         icon      : 'http://cdn.omise.co/validator/images/icon-visa.png'
         validate  : /(?:^|\s)(\d{4})$/
+      ,
+        type      : 'jcb'
+        pattern   : /^(?:^|\s)(?:2131|1800|35\d{3})/
+        format    : '#### #### #### ####'
+        length    : [15, 16]
+        icon      : 'http://cdn.omise.co/validator/images/icon-jcb.png'
+        validate  : /(?:^|\s)(\d{4})$/
     ]
 
     @cardUnknow =
@@ -39,7 +46,7 @@ class OmiseCcNumberValidation
 
     # Initiate credit card icon
     @_appendCcIcon field.selector
-    
+
   ###
   # Create a credit card icon's element
   # @param {object} elem - a selector object of an element
@@ -51,12 +58,12 @@ class OmiseCcNumberValidation
     wrapper     = document.createElement 'span'
     wrapper.id  = "omise_card_brand_supported"
     parent.appendChild wrapper
-    
+
     for card, i in @cards
       e           = document.createElement 'img'
       e.src       = card.icon
       e.className = "omise_ccnumber_card omise_ccnumber_#{card.type}"
-    
+
       wrapper.appendChild e
 
   ###
@@ -177,7 +184,7 @@ class OmiseCcNumberValidation
 
           p1 = e.target.value.slice(0, pos)
           p2 = e.target.value.slice(pos+range.length)
-          
+
           _value = p1 + p2
           e.target.value = _value
 
@@ -224,7 +231,7 @@ class OmiseCcNumberValidation
           @_hide e.target
         else
           @_show e.target, card
-        
+
         return false if v.length > card.length[card.length.length-1]
 
         # Format the input value
@@ -242,7 +249,7 @@ class OmiseCcNumberValidation
           c += 1
         else if (v.charAt(c-1)) is ' '
           c += 1
-          
+
         @helper.setCaretPosition e.target, c
 
       # Validate a field if it dirty
@@ -305,7 +312,7 @@ class OmiseCcNumberValidation
         p2 = e.target.value.slice(range.end)
         v = p1 + input + p2
         value = p1 + p2
-      
+
     v     = (v + '').replace(/\D/g, '')
     card  = @_validateCardPattern(v) || @cardUnknow
 
@@ -313,12 +320,12 @@ class OmiseCcNumberValidation
       @_hide e.target
     else
       @_show e.target, card
-    
+
     return false if v.length > card.length[card.length.length-1]
 
     # Format the input value
     v = @_reFormatCardPattern v, card
-    
+
     c = c + (Math.abs(v.length - value.length))
     if / $/.test value
       c += 1

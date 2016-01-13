@@ -18,10 +18,12 @@ class OmiseValidationRule
     return /^(0[1-9]|1[0-2])$/.test input
 
   isCard: (cardType, input) ->
+    jcb         = /^(?:2131|1800|35\d{3})\d{11}$/
     visa        = /^(?:4[0-9]{12}(?:[0-9]{3})?)$/
     mastercard  = /^(?:5[1-5][0-9]{14})$/
 
     switch cardType
+      when 'jcb' then return jcb.test(input)
       when 'visa' then return visa.test(input)
       when 'mastercard' then return mastercard.test(input)
       else return false
