@@ -6,21 +6,21 @@ class OmiseCcNumberValidation
         pattern   : /^5[1-5]/
         format    : '#### #### #### ####'
         length    : [16]
-        icon      : 'http://cdn.omise.co/validator/images/icon-mastercard.png'
+        icon      : 'https://cdn.omise.co/validator/images/icon-mastercard.png'
         validate  : /(?:^|\s)(\d{4})$/
       ,
         type      : 'visa'
         pattern   : /^4/
         format    : '#### #### #### ####'
         length    : [13, 16]
-        icon      : 'http://cdn.omise.co/validator/images/icon-visa.png'
+        icon      : 'https://cdn.omise.co/validator/images/icon-visa.png'
         validate  : /(?:^|\s)(\d{4})$/
       ,
         type      : 'jcb'
         pattern   : /^(?:^|\s)(?:2131|1800|35\d{3})/
         format    : '#### #### #### ####'
         length    : [15, 16]
-        icon      : 'http://cdn.omise.co/validator/images/icon-jcb.png'
+        icon      : 'https://cdn.omise.co/validator/images/icon-jcb.png'
         validate  : /(?:^|\s)(\d{4})$/
     ]
 
